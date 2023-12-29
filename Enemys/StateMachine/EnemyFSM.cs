@@ -133,8 +133,8 @@ public abstract class EnemyFSM : MonoBehaviour
             Vector2 direction = (faceDirection - currentDirection).normalized;      //只需要方向
 
             //使怪物播放朝向坐标的动画
-            parameter.animator.SetFloat("Move X", direction.x);
-            parameter.animator.SetFloat("Move Y", direction.y);
+            parameter.animator.SetFloat("MoveX", direction.x);
+            parameter.animator.SetFloat("MoveY", direction.y);
         }
     }
 
@@ -153,19 +153,19 @@ public abstract class EnemyFSM : MonoBehaviour
 
 
     //受击相关
-    public void TakeDamage(int damage)      //受击时调用此函数
+    public void EnemyTakeDamage(int damage)      //受击时调用此函数
     {
         TransitionState(StateType.Hit);
         parameter.health -= damage;
     }
 
-    public void GetHit(Vector2 direction)      //受击时调用此函数，参数为玩家攻击时面对的方向
+    public void EnemyGetHit(Vector2 direction)      //受击时调用此函数，参数为玩家攻击时面对的方向
     {
         parameter.isHit = true;
 
         //使怪物播放朝向玩家的反方向的动画
-        parameter.animator.SetFloat("Move X", -direction.x);
-        parameter.animator.SetFloat("Move Y", -direction.y);
+        parameter.animator.SetFloat("MoveX", -direction.x);
+        parameter.animator.SetFloat("MoveY", -direction.y);
 
         m_HitDirection = direction;
     }
@@ -184,7 +184,7 @@ public abstract class EnemyFSM : MonoBehaviour
         }
     }
 
-    public void DestroyAfterDeath()      //动画事件，摧毁物体
+    public void DestroyEnemyAfterDeath()      //动画事件，摧毁物体
     {
         if (transform.parent != null)
         {
@@ -195,18 +195,19 @@ public abstract class EnemyFSM : MonoBehaviour
 
 
     //攻击相关
-    public void Launch()
+    public void FireBallLaunch(Transform target)
     {
-        Vector2 attackX = parameter.animator.GetFloat("Move X") > Mathf.Epsilon? Vector2.right : Vector2.left;      //根据动画参数MoveX判断敌人朝向
-        Vector2 attackPosition = m_Rigidbody2d.position + Vector2.up * 0.6f + attackX * 0.2f;       //火球生成位置在y轴上应位于头部，x轴上应偏离敌人的位置（嘴部发射）
+        Vector2 attackX = parameter.animator.GetFloat("MoveX") > Mathf.Epsilon? Vector2.right : Vector2.left;      //根据动画参数MoveX判断敌人朝向
+        float deviation = Mathf.Abs(parameter.animator.GetFloat("MoveY")) >= Mathf.Abs(parameter.animator.GetFloat("MoveX")) ? 0f : 0.2f;     //偏离参数（根据敌人面朝方向决定偏离嘴部多少）
+        Vector2 attackPosition = m_Rigidbody2d.position + Vector2.up * 0.8f + attackX * deviation;       //火球生成位置在y轴上应位于头部，x轴上应偏离敌人的位置（嘴部发射）
         
 
-        float angle = Mathf.Atan2((parameter.target.position.y + 0.5f - attackPosition.y), (parameter.target.position.x - attackPosition.x)) * Mathf.Rad2Deg;      //计算火球与玩家中心之间的夹角
+        float angle = Mathf.Atan2((target.position.y + 0.5f - attackPosition.y), (target.position.x - attackPosition.x)) * Mathf.Rad2Deg;      //计算火球与玩家中心之间的夹角
 
         GameObject FireBallObject = Instantiate(FireBallPrefab, attackPosition, Quaternion.Euler(0, 0, angle));      //生成火球
 
-        FireBall fireBall = FireBallObject.GetComponent<FireBall>();
-        fireBall.Launch(parameter.target.position + Vector3.up * 0.5f - FireBallObject.transform.position, 30);        //朝角色中心方向发射火球，力度300
+        FireBall fireBall = FireBallObject.GetComponent<FireBall>();        //调用火球脚本
+        fireBall.Launch(target.position + Vector3.up * 0.5f - FireBallObject.transform.position, 150);        //朝角色中心方向发射火球
     }
 
 
