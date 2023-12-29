@@ -29,6 +29,7 @@ public class HitState : IState
     {
         if (m_parameter.health <= 0 )
         {
+            m_parameter.health = 0;
             m_manager.TransitionState(StateType.Death);
         }
 

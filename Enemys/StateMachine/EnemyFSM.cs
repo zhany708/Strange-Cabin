@@ -16,19 +16,23 @@ public enum StateType
 [Serializable]      //让编辑器序列化这个类
 public class Parameter
 {
+    //基础信息
     public float health;
     public float moveSpeed;
     public float chaseSpeed;
-    public float idleDuration;
-
+    public float idleDuration;      //待机时长
     public Transform[] patrolPoints;    //巡逻范围
-    public Transform[] chasePoints;     //追击范围
+    public float stoppingDistance;      //敌人与玩家的最小距离
 
+    //攻击相关
     public Transform target;        //玩家的坐标
     public LayerMask targetLayer;
-    public Transform attackPoint;   //圆心检测位置
+    public Transform[] chasePoints;     //追击范围
+    public Transform attackPoint;   //攻击范围的圆心位置
     public float attackArea;        //圆的半径参数
+    public float attackInterval;    //攻击间隔
 
+    //受击相关
     public bool isHit;
     public float HitSpeed;      //受击移动速度
 
@@ -39,29 +43,51 @@ public class Parameter
 
 
 
-public class EnemyFSM : MonoBehaviour
+public abstract class EnemyFSM : MonoBehaviour
 {
     public Parameter parameter;
+    public GameObject FireBallPrefab;       //获取火球预制件
 
+
+    protected Rigidbody2D m_Rigidbody2d;
     AnimatorStateInfo m_Info;
-    Rigidbody2D m_Rigidbody2d;
-    Vector2 m_HitDirection;
-    Vector2 m_Position;
+    Vector2 m_HitDirection;     //受击方向
+    Vector2 m_Position;     //用于受击移动
+
+    Vector2 m_LeftDownPosition;     //用于随机生成巡逻坐标
+    Vector2 m_RightTopPosition;
 
     IState m_CurrentState;
     Dictionary<StateType, IState> states = new Dictionary<StateType, IState>();     //使用字典注册所有状态
 
+    float m_LastAttackTime;     //上次攻击的时间
 
 
-    void Awake()
+
+    protected void Awake()
     {
         parameter.animator = GetComponent<Animator>();
         m_Rigidbody2d = GetComponent<Rigidbody2D>();
+
+        m_LeftDownPosition = parameter.patrolPoints[0].transform.position;      //在脚本中储存巡逻点
+        m_RightTopPosition = parameter.patrolPoints[1].transform.position;
+
+        foreach(Transform child in transform.parent)    //在场景中删除所有巡逻点
+        {
+            foreach(Transform child2 in child)     //在敌人的父物体中检索每一个子物体的子物体
+            {
+                if (child2.CompareTag("PatrolPoint"))
+                {
+                    Destroy(child2.gameObject);
+                }
+            }
+        }
     }
 
-    void Start()
+    protected void Start()
     {
         m_Info = parameter.animator.GetCurrentAnimatorStateInfo(0);
+        m_LastAttackTime = -parameter.attackInterval;
 
         states.Add(StateType.Idle, new IdleState(this));        //给字典添加所有状态
         states.Add(StateType.Patrol, new PatrolState(this));
@@ -74,15 +100,21 @@ public class EnemyFSM : MonoBehaviour
         TransitionState(StateType.Idle);        //设置初始状态
     }
 
-    void Update()
+    protected void Update()
     {
-        m_CurrentState.OnUpdate();      //持续执行当前状态的OnUpdate函数                                              
+        DetectHit();
+                           
+    }
+
+    protected void FixedUpdate()
+    {
+        m_CurrentState.OnUpdate();      //持续执行当前状态的OnUpdate函数                           
     }
 
 
 
-
-    public void TransitionState(StateType type)     //更改状态
+    //更改状态
+    public void TransitionState(StateType type)   
     {
         if (m_CurrentState != null)     //转换状态前先执行当前状态的退出函数
         {
@@ -93,8 +125,8 @@ public class EnemyFSM : MonoBehaviour
         m_CurrentState.OnEnter();
     }
 
-
-    public void FaceTo(Vector2 faceDirection, Vector2 currentDirection)       //更改当前朝向
+    //更改当前朝向
+    public void FaceTo(Vector2 faceDirection, Vector2 currentDirection)     
     {
         if (faceDirection != null)
         {
@@ -117,6 +149,7 @@ public class EnemyFSM : MonoBehaviour
 
         return parameter.target.position.x < minX || parameter.target.position.x > maxX || parameter.target.position.y < minY || parameter.target.position.y > maxY;
     }
+
 
 
     //受击相关
@@ -153,11 +186,33 @@ public class EnemyFSM : MonoBehaviour
 
     public void DestroyAfterDeath()      //动画事件，摧毁物体
     {
-        Destroy(gameObject);
+        if (transform.parent != null)
+        {
+            Destroy(transform.parent.gameObject);       //摧毁敌人的父物体，也将摧毁父物体的所有子物体
+        }
     }
 
 
 
+    //攻击相关
+    public void Launch()
+    {
+        Vector2 attackX = parameter.animator.GetFloat("Move X") > Mathf.Epsilon? Vector2.right : Vector2.left;      //根据动画参数MoveX判断敌人朝向
+        Vector2 attackPosition = m_Rigidbody2d.position + Vector2.up * 0.6f + attackX * 0.2f;       //火球生成位置在y轴上应位于头部，x轴上应偏离敌人的位置（嘴部发射）
+        
+
+        float angle = Mathf.Atan2((parameter.target.position.y + 0.5f - attackPosition.y), (parameter.target.position.x - attackPosition.x)) * Mathf.Rad2Deg;      //计算火球与玩家中心之间的夹角
+
+        GameObject FireBallObject = Instantiate(FireBallPrefab, attackPosition, Quaternion.Euler(0, 0, angle));      //生成火球
+
+        FireBall fireBall = FireBallObject.GetComponent<FireBall>();
+        fireBall.Launch(parameter.target.position + Vector3.up * 0.5f - FireBallObject.transform.position, 30);        //朝角色中心方向发射火球，力度300
+    }
+
+
+
+
+    //各种物理检测
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
@@ -165,6 +220,7 @@ public class EnemyFSM : MonoBehaviour
             parameter.target = other.transform;     //储存玩家的位置信息
         }
     }
+
     private void OnTriggerExit2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
@@ -174,8 +230,43 @@ public class EnemyFSM : MonoBehaviour
     }
 
 
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.CompareTag("Furniture") || other.gameObject.CompareTag("Wall"))     
+        {
+            TransitionState(StateType.Idle);        //与家具或墙触发碰撞时切换成闲置状态    
+        } 
+        
+    }
+
+
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireSphere(parameter.attackPoint.position, parameter.attackArea);    //设置攻击范围的圆心和半径
+    }
+
+
+
+    //获取成员变量
+    public float getLastAttackTime()
+    {
+        return m_LastAttackTime;
+    }
+
+    public Vector2 getLeftDownPos()
+    {
+        return m_LeftDownPosition;
+    }
+
+    public Vector2 getRightTopPos()
+    {
+        return m_RightTopPosition;
+    }
+
+
+    //设置成员变量
+    public void SetLastAttackTime(float currentTime)
+    {
+        m_LastAttackTime = currentTime;
     }
 }

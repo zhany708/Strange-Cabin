@@ -22,6 +22,7 @@ public class AttackState : IState
     public void OnEnter()
     {
         m_parameter.animator.SetTrigger("Attack");
+        m_manager.SetLastAttackTime(Time.time);     //设置当前时间为上次攻击时间
     }
 
 
