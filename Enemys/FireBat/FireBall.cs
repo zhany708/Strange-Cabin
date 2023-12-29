@@ -7,7 +7,7 @@ public class FireBall : MonoBehaviour
 {
     Rigidbody2D m_RigidBody2d;
     Vector2 m_AttackDirection;
-    int damage = 2;
+    int m_damage = 2;
 
     void Awake()
     {
@@ -36,8 +36,8 @@ public class FireBall : MonoBehaviour
         PlayerController player = other.collider.GetComponent<PlayerController>();      //调用玩家函数
         if (player != null)
         {
-            player.TakeDamage(damage);
-            player.GetHit(m_AttackDirection);
+            player.PlayerTakeDamage(m_damage);
+            player.PlayerGetHit(m_AttackDirection);
         }
 
         Destroy(gameObject);    
