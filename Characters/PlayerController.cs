@@ -57,7 +57,6 @@ public class PlayerController : MonoBehaviour
         m_Animator = GetComponent<Animator>();
 
         m_CameraShake = FindObjectOfType<CameraShake>();    //找拥有CameraShake脚本的组件
-
     }
 
     void Update()
@@ -111,8 +110,8 @@ public class PlayerController : MonoBehaviour
             m_MoveDirection.Normalize();      //将向量的值改成1（因为只需要方向）
         }
 
-        m_Animator.SetFloat("Move X", m_MoveDirection.x);
-        m_Animator.SetFloat("Move Y", m_MoveDirection.y);
+        m_Animator.SetFloat("MoveX", m_MoveDirection.x);
+        m_Animator.SetFloat("MoveY", m_MoveDirection.y);
         m_Animator.SetFloat("Speed", m_Move.magnitude);
     }
 
@@ -140,7 +139,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void AttackOver()    //用于动画事件（在不同的帧插入此函数）
+    public void PlayerAttackOver()    //用于动画事件（在不同的帧插入此函数）
     {
         m_IsAttack = false;
     }
@@ -150,8 +149,8 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Enemy"))
         {
             //敌人受伤
-            other.GetComponent<EnemyFSM>().TakeDamage(damage);
-            other.GetComponent<EnemyFSM>().GetHit(m_MoveDirection);
+            other.GetComponent<EnemyFSM>().EnemyTakeDamage(damage);
+            other.GetComponent<EnemyFSM>().EnemyGetHit(m_MoveDirection);
 
             //相机震动
             float shakeIntensity = m_Animator.GetFloat("SwingType") == 1 ? 1.5f : 2f;
@@ -167,16 +166,16 @@ public class PlayerController : MonoBehaviour
 
 
     //受击相关
-    public void TakeDamage(int damage)
+    public void PlayerTakeDamage(int damage)
     {
         health -= damage;
     }
 
-    public void GetHit(Vector2 direction)      //受击时调用此函数，参数为火球前进的方向
+    public void PlayerGetHit(Vector2 direction)      //受击时调用此函数，参数为火球前进的方向
     {
         //使玩家播放面朝受击方向的动画
-        m_Animator.SetFloat("Move X", -direction.x);
-        m_Animator.SetFloat("Move Y", -direction.y);
+        m_Animator.SetFloat("MoveX", direction.x);
+        m_Animator.SetFloat("MoveY", direction.y);
 
         m_IsHit = true;
         m_HitDirection = direction;
