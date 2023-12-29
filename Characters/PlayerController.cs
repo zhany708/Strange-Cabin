@@ -150,8 +150,8 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Enemy"))
         {
             //敌人受伤
-            other.GetComponent<FSM>().TakeDamage(damage);
-            other.GetComponent<FSM>().GetHit(m_MoveDirection);
+            other.GetComponent<EnemyFSM>().TakeDamage(damage);
+            other.GetComponent<EnemyFSM>().GetHit(m_MoveDirection);
 
             //相机震动
             float shakeIntensity = m_Animator.GetFloat("SwingType") == 1 ? 1.5f : 2f;
@@ -179,7 +179,7 @@ public class PlayerController : MonoBehaviour
         m_Animator.SetFloat("Move Y", -direction.y);
 
         m_IsHit = true;
-        this.m_HitDirection = direction;
+        m_HitDirection = direction;
 
         m_Animator.SetTrigger("Hit");
     }
