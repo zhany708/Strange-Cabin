@@ -5,14 +5,15 @@ using UnityEngine;
 public class AttackState : IState
 {
 
-    EnemyFSM m_manager;
-    Parameter m_parameter;
-    AnimatorStateInfo m_info;
+    EnemyFSM m_Manager;
+    Parameter m_Parameter;
+    AnimatorStateInfo m_AnimatorInfo;       //查询动画状态
+    Transform m_Target;     
 
     public AttackState(EnemyFSM manager)
     {
-        m_manager = manager;
-        m_parameter = manager.parameter;
+        m_Manager = manager;
+        m_Parameter = manager.parameter;
 
     }
 
@@ -21,23 +22,28 @@ public class AttackState : IState
 
     public void OnEnter()
     {
-        m_parameter.animator.SetTrigger("Attack");
-        m_manager.SetLastAttackTime(Time.time);     //设置当前时间为上次攻击时间
+        m_Target = m_Parameter.target;      //储存玩家坐标信息，防止发射火球时丢失坐标
+        m_Parameter.animator.SetTrigger("Attack");
+        m_Manager.SetLastAttackTime(Time.time);     //设置当前时间为上次攻击时间
     }
 
 
     public void OnUpdate()
     {
-        m_info = m_parameter.animator.GetCurrentAnimatorStateInfo(0);       //获取当前动画
+        m_AnimatorInfo = m_Parameter.animator.GetCurrentAnimatorStateInfo(0);       //获取当前动画
 
-        if (m_parameter.isHit)     //检测是否受击
+        if (m_Parameter.isHit)     //检测是否受击
         {
-            m_manager.TransitionState(StateType.Hit);
+            m_Manager.TransitionState(StateType.Hit);
         }
 
-        else if (m_info.normalizedTime >= 0.95f)     //播放完攻击动画则切换成追击动画
+        if (m_AnimatorInfo.IsName("Attack"))
         {
-            m_manager.TransitionState(StateType.Chase);
+            if (m_AnimatorInfo.normalizedTime >= 0.95f)     //播放完攻击动画则发射火球且切换成追击状态
+            {
+                m_Manager.FireBallLaunch(m_Target);     
+                m_Manager.TransitionState(StateType.Chase);
+            }
         }
     }
 

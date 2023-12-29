@@ -23,7 +23,7 @@ public class ChaseState : IState
 
     public void OnEnter()
     {
-
+        //Debug.Log("ChaseState");
     }
 
 
