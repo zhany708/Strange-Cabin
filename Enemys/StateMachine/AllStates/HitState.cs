@@ -1,18 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
 using UnityEngine;
 
 public class HitState : IState
 {
 
-    EnemyFSM m_manager;
-    Parameter m_parameter;
+    EnemyFSM m_Manager;
+    Parameter m_Parameter;
+    protected AnimatorStateInfo m_AnimatorInfo;       //查询动画状态
 
 
     public HitState(EnemyFSM manager)
     {
-        m_manager = manager;
-        m_parameter = manager.parameter;
+        m_Manager = manager;
+        m_Parameter = manager.parameter;
 
     }
 
@@ -21,28 +23,36 @@ public class HitState : IState
 
     public void OnEnter()
     {
-        m_parameter.animator.SetTrigger("Hit");
+        //Debug.Log("HitState");
+
+        m_Parameter.isHit = true;
+
+        m_Parameter.animator.SetTrigger("Hit");
+        m_Manager.SetLastHitTime(Time.time);     //设置当前时间为上次受击时间
     }
 
 
     public void OnUpdate()
     {
-        if (m_parameter.health <= 0 )
+        m_AnimatorInfo = m_Parameter.animator.GetCurrentAnimatorStateInfo(0);       //获取当前动画
+
+        if (m_Parameter.health <= 0 )
         {
-            m_parameter.health = 0;
-            m_manager.TransitionState(StateType.Death);
+            m_Parameter.health = 0;
+            m_Manager.TransitionState(StateType.Death);
         }
 
-        else
+        
+        else if (m_AnimatorInfo.IsName("Hit") && m_AnimatorInfo.normalizedTime >= 0.95f)
         {
-            m_parameter.target = GameObject.FindWithTag("Player").transform;        //当未死亡时，受击后立刻进入追击状态
-            m_manager.TransitionState(StateType.Chase);
+            m_Parameter.target = GameObject.FindWithTag("Player").transform;        //寻找有Player标签的物件坐标
+            m_Manager.TransitionState(StateType.Chase);          
         }
     }
 
 
     public void OnExit()
     {
-        m_parameter.isHit = false;
+        m_Parameter.isHit = false;
     }
 }

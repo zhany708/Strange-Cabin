@@ -5,16 +5,17 @@ using UnityEngine;
 public class PatrolState : IState
 {
 
-    EnemyFSM m_manager;
-    Parameter m_parameter;
+    EnemyFSM m_Manager;
+    Parameter m_Parameter;
 
     Vector2 m_RandomPosition;       //随机坐标
+    float m_PatrolTimer;
 
 
     public PatrolState(EnemyFSM manager)
     {
-        m_manager = manager;
-        m_parameter = manager.parameter;
+        m_Manager = manager;
+        m_Parameter = manager.parameter;
 
     }
 
@@ -23,38 +24,46 @@ public class PatrolState : IState
 
     public void OnEnter()
     {
+        //Debug.Log("PatrolState");
+
         //生成随机坐标
-        m_RandomPosition = new Vector2(Random.Range(m_manager.getLeftDownPos().x, m_manager.getRightTopPos().x), Random.Range(m_manager.getLeftDownPos().y, m_manager.getRightTopPos().y));
+        m_RandomPosition = new Vector2(Random.Range(m_Manager.GetLeftDownPos().x, m_Manager.GetRightTopPos().x), Random.Range(m_Manager.GetLeftDownPos().y, m_Manager.GetRightTopPos().y));
     }
 
 
     public void OnUpdate()
     {
-        m_manager.FaceTo(m_RandomPosition, m_manager.transform.position);      //朝向巡逻点的方向
+        m_PatrolTimer += Time.deltaTime;
+        m_Manager.FaceTo(m_RandomPosition, m_Manager.transform.position);      //朝向巡逻点的方向
 
-        if (m_parameter.isHit)     //检测是否受击
+        if (m_Parameter.isHit && Time.time - m_Manager.GetLastHitTime() >= m_Parameter.hitInterval)     //检测是否受击
         {
-            m_manager.TransitionState(StateType.Hit);
+            m_Manager.TransitionState(StateType.Hit);
         }
 
-        else if (m_parameter.target != null && !m_manager.CheckOutside())
+        else if (m_Parameter.target != null && !m_Manager.CheckOutside())
         {
-            m_manager.TransitionState(StateType.Chase);     //巡逻时如果检测到玩家则切换为反应状态
+            m_Manager.TransitionState(StateType.Chase);     //巡逻时如果检测到玩家则切换为反应状态
         }
 
 
         //移动到目标点
-        m_manager.transform.position = Vector2.MoveTowards(m_manager.transform.position, m_RandomPosition, m_parameter.moveSpeed * Time.deltaTime);
+        m_Manager.transform.position = Vector2.MoveTowards(m_Manager.transform.position, m_RandomPosition, m_Parameter.moveSpeed * Time.deltaTime);
 
-        if (Vector2.Distance(m_manager.transform.position, m_RandomPosition) < 0.1f)     //当距离目标巡逻点足够近时
+        if (Vector2.Distance(m_Manager.transform.position, m_RandomPosition) < 0.1f)     //当距离目标巡逻点足够近时
         {
-            m_manager.TransitionState(StateType.Idle);
+            m_Manager.TransitionState(StateType.Idle);
+        }
+
+        else if (m_PatrolTimer >= 5f)
+        {
+            m_Manager.TransitionState(StateType.Idle);      //如果5秒后敌人仍没有到达巡逻点（卡住了），则强制转换成闲置状态
         }
     }
 
 
     public void OnExit()
     {
-
+        m_PatrolTimer = 0f;
     }
 }

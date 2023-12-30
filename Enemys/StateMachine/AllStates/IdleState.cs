@@ -5,50 +5,51 @@ using UnityEngine;
 public class IdleState : IState
 {
 
-    EnemyFSM m_manager;
-    Parameter m_parameter;
-    float m_Timer;      //巡逻（原地停留）时间
+    EnemyFSM m_Manager;
+    Parameter m_Parameter;
+    float m_IdleTimer;      //巡逻（原地停留）时间
 
+    
     public IdleState(EnemyFSM manager)
     {
-        m_manager = manager;
-        m_parameter = manager.parameter;
+        m_Manager = manager;
+        m_Parameter = manager.parameter;
 
     }
-
+  
 
 
 
     public void OnEnter()
     {
-
+        //Debug.Log("IdleState");
     }
 
 
     public void OnUpdate()
     {
-        m_Timer += Time.deltaTime;
+        m_IdleTimer += Time.deltaTime;
 
-        if (m_parameter.isHit)     //检测是否受击
+        if (m_Parameter.isHit && Time.time - m_Manager.GetLastHitTime() >= m_Parameter.hitInterval)     //检测是否受击
         {
-            m_manager.TransitionState(StateType.Hit);
+            m_Manager.TransitionState(StateType.Hit);
         }
         
-        else if (m_parameter.target != null && !m_manager.CheckOutside())
+        else if (m_Parameter.target != null && !m_Manager.CheckOutside())
         {
-            m_manager.TransitionState(StateType.Chase);     //巡逻时如果检测到玩家则切换为追击状态（如果有反应动画可以先切换为反应状态。然后再反应动画播完后切换成追击状态）
+            m_Manager.TransitionState(StateType.Chase);     //巡逻时如果检测到玩家则切换为追击状态（如果有反应动画可以先切换为反应状态。然后再反应动画播完后切换成追击状态）
         }
         
 
-        else if (m_Timer >= m_parameter.idleDuration)    //检测是否该进入巡逻状态
+        else if (m_IdleTimer >= m_Parameter.idleDuration)    //检测是否该进入巡逻状态
         {
-            m_manager.TransitionState(StateType.Patrol);
+            m_Manager.TransitionState(StateType.Patrol);
         }
     }
 
 
     public void OnExit()
     {
-        m_Timer = 0;
+        m_IdleTimer = 0;
     }
 }

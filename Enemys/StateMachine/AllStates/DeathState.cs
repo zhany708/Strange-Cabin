@@ -5,13 +5,13 @@ using UnityEngine;
 public class DeathState : IState
 {
 
-    EnemyFSM m_manager;
-    Parameter m_parameter;
+    EnemyFSM m_Manager;
+    Parameter m_Parameter;
 
     public DeathState(EnemyFSM manager)
     {
-        m_manager = manager;
-        m_parameter = manager.parameter;
+        m_Manager = manager;
+        m_Parameter = manager.parameter;
 
     }
 
@@ -19,7 +19,7 @@ public class DeathState : IState
 
     public void OnEnter()
     {
-        m_parameter.animator.SetBool("Death", true);
+        m_Parameter.animator.SetBool("Death", true);
     }
 
 
