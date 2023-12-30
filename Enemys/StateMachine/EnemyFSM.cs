@@ -34,7 +34,8 @@ public class Parameter
 
     //受击相关
     public bool isHit;
-    public float HitSpeed;      //受击移动速度
+    public float hitSpeed;      //受击移动速度
+    public float hitInterval;   //无敌时间
 
     public Animator animator;
 }
@@ -46,28 +47,29 @@ public class Parameter
 public abstract class EnemyFSM : MonoBehaviour
 {
     public Parameter parameter;
-    public GameObject FireBallPrefab;       //获取火球预制件
 
+    protected Rigidbody2D rigidbody2d;
+    protected Dictionary<StateType, IState> states = new Dictionary<StateType, IState>();     //使用字典注册所有状态
 
-    protected Rigidbody2D m_Rigidbody2d;
-    AnimatorStateInfo m_Info;
+    IState m_CurrentState;
+
     Vector2 m_HitDirection;     //受击方向
     Vector2 m_Position;     //用于受击移动
+
 
     Vector2 m_LeftDownPosition;     //用于随机生成巡逻坐标
     Vector2 m_RightTopPosition;
 
-    IState m_CurrentState;
-    Dictionary<StateType, IState> states = new Dictionary<StateType, IState>();     //使用字典注册所有状态
 
     float m_LastAttackTime;     //上次攻击的时间
+    float m_LastHitTime;        //上次受击时间
 
 
 
-    protected void Awake()
+    protected void Awake()      //更改为Virtual方便子类更改此函数
     {
         parameter.animator = GetComponent<Animator>();
-        m_Rigidbody2d = GetComponent<Rigidbody2D>();
+        rigidbody2d = GetComponent<Rigidbody2D>();
 
         m_LeftDownPosition = parameter.patrolPoints[0].transform.position;      //在脚本中储存巡逻点
         m_RightTopPosition = parameter.patrolPoints[1].transform.position;
@@ -84,11 +86,11 @@ public abstract class EnemyFSM : MonoBehaviour
         }
     }
 
-    protected void Start()
+    protected virtual void Start()
     {
-        m_Info = parameter.animator.GetCurrentAnimatorStateInfo(0);
         m_LastAttackTime = -parameter.attackInterval;
 
+        
         states.Add(StateType.Idle, new IdleState(this));        //给字典添加所有状态
         states.Add(StateType.Patrol, new PatrolState(this));
         states.Add(StateType.Chase, new ChaseState(this));
@@ -97,13 +99,13 @@ public abstract class EnemyFSM : MonoBehaviour
         states.Add(StateType.Hit, new HitState(this));
         states.Add(StateType.Death, new DeathState(this));
 
+
         TransitionState(StateType.Idle);        //设置初始状态
     }
 
     protected void Update()
     {
-        DetectHit();
-                           
+        DetectHit();                          
     }
 
     protected void FixedUpdate()
@@ -154,60 +156,36 @@ public abstract class EnemyFSM : MonoBehaviour
 
     //受击相关
     public void EnemyTakeDamage(int damage)      //受击时调用此函数
-    {
+    {      
         TransitionState(StateType.Hit);
         parameter.health -= damage;
+        
     }
 
     public void EnemyGetHit(Vector2 direction)      //受击时调用此函数，参数为玩家攻击时面对的方向
-    {
-        parameter.isHit = true;
-
+    {      
         //使怪物播放朝向玩家的反方向的动画
         parameter.animator.SetFloat("MoveX", -direction.x);
         parameter.animator.SetFloat("MoveY", -direction.y);
 
-        m_HitDirection = direction;
+        m_HitDirection = direction;        
     }
 
     protected void DetectHit()
     {
-        if (parameter.isHit)
+        if (parameter.isHit)        //只有受击动画的前60%才会移动
         {
-            m_Position = (Vector2)m_Rigidbody2d.position + m_HitDirection * parameter.HitSpeed * Time.deltaTime;      //使怪物向攻击方向移动
-            m_Rigidbody2d.MovePosition(m_Position);
-
-            if (m_Info.normalizedTime >= 0.6f)     //0.6秒后取消受击移动
-            {
-                parameter.isHit = false;
-            }
+            m_Position = rigidbody2d.position + m_HitDirection * parameter.hitSpeed * Time.deltaTime;      //使怪物向攻击方向移动
+            rigidbody2d.MovePosition(m_Position);
         }
     }
 
-    public void DestroyEnemyAfterDeath()      //动画事件，摧毁物体
+    public void DestroyEnemyAfterDeath()      //用于动画事件，摧毁物体
     {
         if (transform.parent != null)
         {
             Destroy(transform.parent.gameObject);       //摧毁敌人的父物体，也将摧毁父物体的所有子物体
         }
-    }
-
-
-
-    //攻击相关
-    public void FireBallLaunch(Transform target)
-    {
-        Vector2 attackX = parameter.animator.GetFloat("MoveX") > Mathf.Epsilon? Vector2.right : Vector2.left;      //根据动画参数MoveX判断敌人朝向
-        float deviation = Mathf.Abs(parameter.animator.GetFloat("MoveY")) >= Mathf.Abs(parameter.animator.GetFloat("MoveX")) ? 0f : 0.2f;     //偏离参数（根据敌人面朝方向决定偏离嘴部多少）
-        Vector2 attackPosition = m_Rigidbody2d.position + Vector2.up * 0.8f + attackX * deviation;       //火球生成位置在y轴上应位于头部，x轴上应偏离敌人的位置（嘴部发射）
-        
-
-        float angle = Mathf.Atan2((target.position.y + 0.5f - attackPosition.y), (target.position.x - attackPosition.x)) * Mathf.Rad2Deg;      //计算火球与玩家中心之间的夹角
-
-        GameObject FireBallObject = Instantiate(FireBallPrefab, attackPosition, Quaternion.Euler(0, 0, angle));      //生成火球
-
-        FireBall fireBall = FireBallObject.GetComponent<FireBall>();        //调用火球脚本
-        fireBall.Launch(target.position + Vector3.up * 0.5f - FireBallObject.transform.position, 150);        //朝角色中心方向发射火球
     }
 
 
@@ -249,17 +227,22 @@ public abstract class EnemyFSM : MonoBehaviour
 
 
     //获取成员变量
-    public float getLastAttackTime()
+    public float GetLastAttackTime()
     {
         return m_LastAttackTime;
     }
 
-    public Vector2 getLeftDownPos()
+    public float GetLastHitTime()
+    {
+        return m_LastHitTime;
+    }
+
+    public Vector2 GetLeftDownPos()
     {
         return m_LeftDownPosition;
     }
 
-    public Vector2 getRightTopPos()
+    public Vector2 GetRightTopPos()
     {
         return m_RightTopPosition;
     }
@@ -269,5 +252,10 @@ public abstract class EnemyFSM : MonoBehaviour
     public void SetLastAttackTime(float currentTime)
     {
         m_LastAttackTime = currentTime;
+    }
+
+    public void SetLastHitTime(float currentTime)
+    {
+        m_LastHitTime = currentTime;
     }
 }
