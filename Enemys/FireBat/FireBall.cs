@@ -36,8 +36,7 @@ public class FireBall : MonoBehaviour
         PlayerController player = other.collider.GetComponent<PlayerController>();      //调用玩家函数
         if (player != null)
         {
-            player.PlayerTakeDamage(m_damage);
-            player.PlayerGetHit(m_AttackDirection);
+            player.PlayerGetHit(m_damage, m_AttackDirection);
         }
 
         Destroy(gameObject);    
