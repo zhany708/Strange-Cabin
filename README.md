@@ -2,6 +2,6 @@
 
 A 2D adventure and Rogue-like game.
 
-Game development roles: Zhang YU(Steven), Guo Baiting
-
 Engine: Unity
+
+Game development participants: Zhang YU(Steven), Guo Baiting
