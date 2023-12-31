@@ -1,7 +1,7 @@
 # Strange-Cabin
 
-A 2D adventure and Rogue-like game.
+A 2D adventure and Roguelike game with pixel art.
 
 Engine: Unity
 
-Game development participants: Zhang YU(Steven), Guo Baiting
+Game development participants: Zhang Yu(Steven), Guo Baiting
