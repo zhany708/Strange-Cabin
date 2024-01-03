@@ -34,7 +34,7 @@ public class PatrolState : IState
     public void OnUpdate()
     {
         m_PatrolTimer += Time.deltaTime;
-        m_Manager.FaceTo(m_RandomPosition, m_Manager.transform.position);      //朝向巡逻点的方向
+        m_Manager.Core.Movement.SetAnimationDirection(m_RandomPosition, m_Manager.transform.position);      //朝向巡逻点的方向
 
         if (m_Parameter.isHit && Time.time - m_Manager.GetLastHitTime() >= m_Parameter.hitInterval)     //检测是否受击
         {

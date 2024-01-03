@@ -31,7 +31,7 @@ public class ChaseState : IState
     {
         if (m_Parameter.target != null)
         {
-            m_Manager.FaceTo(m_Parameter.target.position, m_Manager.transform.position);       //使怪物朝向玩家
+            m_Manager.Core.Movement.SetAnimationDirection(m_Parameter.target.position, m_Manager.transform.position);       //使怪物朝向玩家
 
             m_DistanceToPlayer = Vector2.Distance(m_Manager.transform.position, m_Parameter.target.position);       //计算敌人与玩家的距离
         }

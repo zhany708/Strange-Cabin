@@ -12,7 +12,7 @@ public enum StateType
 }
 
 
-
+#region Parameters
 [Serializable]      //让编辑器序列化这个类
 public class Parameter
 {
@@ -25,7 +25,7 @@ public class Parameter
     public float stoppingDistance;      //敌人与玩家的最小距离
 
     //攻击相关
-    public Transform target;        //玩家的坐标
+    public Transform target;     //玩家的坐标
     public LayerMask targetLayer;
     public Transform[] chasePoints;     //追击范围
     public Transform attackPoint;   //攻击范围的圆心位置
@@ -39,20 +39,25 @@ public class Parameter
 
     public Animator animator;
 }
+#endregion
 
 
 
 
 
-public abstract class EnemyFSM : MonoBehaviour
+public abstract class EnemyFSM : MonoBehaviour, Idamageable
 {
+    #region Components
     public Parameter parameter;
+    public Core Core { get; private set; }
 
     protected Rigidbody2D rigidbody2d;
     protected Dictionary<StateType, IState> states = new Dictionary<StateType, IState>();     //使用字典注册所有状态
 
     IState m_CurrentState;
+    #endregion
 
+    #region Variables
     Vector2 m_HitDirection;     //受击方向
     Vector2 m_Position;     //用于受击移动
 
@@ -63,13 +68,14 @@ public abstract class EnemyFSM : MonoBehaviour
 
     float m_LastAttackTime;     //上次攻击的时间
     float m_LastHitTime;        //上次受击时间
+    #endregion
 
-
-
+    #region Unity CallBack Functions
     protected void Awake()      //更改为Virtual方便子类更改此函数
     {
         parameter.animator = GetComponent<Animator>();
         rigidbody2d = GetComponent<Rigidbody2D>();
+        Core = GetComponentInChildren<Core>();
 
         m_LeftDownPosition = parameter.patrolPoints[0].transform.position;      //在脚本中储存巡逻点
         m_RightTopPosition = parameter.patrolPoints[1].transform.position;
@@ -105,16 +111,18 @@ public abstract class EnemyFSM : MonoBehaviour
 
     protected void Update()
     {
-        DetectHit();                          
+                               
     }
 
     protected void FixedUpdate()
     {
+        DetectHit();
+
         m_CurrentState.OnUpdate();      //持续执行当前状态的OnUpdate函数                           
     }
+    #endregion
 
-
-
+    #region Main Functions
     //更改状态
     public void TransitionState(StateType type)   
     {
@@ -127,6 +135,7 @@ public abstract class EnemyFSM : MonoBehaviour
         m_CurrentState.OnEnter();
     }
 
+    /*
     //更改当前朝向
     public void FaceTo(Vector2 faceDirection, Vector2 currentDirection)     
     {
@@ -139,7 +148,7 @@ public abstract class EnemyFSM : MonoBehaviour
             parameter.animator.SetFloat("MoveY", direction.y);
         }
     }
-
+    */
 
     //检测玩家是否超出追击范围
     public bool CheckOutside() 
@@ -151,22 +160,24 @@ public abstract class EnemyFSM : MonoBehaviour
 
         return parameter.target.position.x < minX || parameter.target.position.x > maxX || parameter.target.position.y < minY || parameter.target.position.y > maxY;
     }
+    #endregion
 
-
-
+    #region Hit Functions
     //受击相关
-    public void EnemyTakeDamage(int damage)      //受击时调用此函数
+    public void Damage(float amount)      //受击时调用此函数
     {      
         TransitionState(StateType.Hit);
-        parameter.health -= damage;
+        parameter.health -= amount;
         
     }
 
-    public void EnemyGetHit(Vector2 direction)      //受击时调用此函数，参数为玩家攻击时面对的方向
-    {      
+    public void GetHit(Vector2 direction)      //受击时调用此函数，参数为玩家攻击时面对的方向
+    {
+        Core.Movement.SetAnimationDirection(Vector2.zero, direction);
+
         //使怪物播放朝向玩家的反方向的动画
-        parameter.animator.SetFloat("MoveX", -direction.x);
-        parameter.animator.SetFloat("MoveY", -direction.y);
+        //parameter.animator.SetFloat("MoveX", -direction.x);
+        //parameter.animator.SetFloat("MoveY", -direction.y);
 
         m_HitDirection = direction;        
     }
@@ -175,8 +186,15 @@ public abstract class EnemyFSM : MonoBehaviour
     {
         if (parameter.isHit)        //只有受击动画的前60%才会移动
         {
-            m_Position = rigidbody2d.position + m_HitDirection * parameter.hitSpeed * Time.deltaTime;      //使怪物向攻击方向移动
-            rigidbody2d.MovePosition(m_Position);
+            //m_Position = rigidbody2d.position + m_HitDirection * parameter.hitSpeed * Time.deltaTime;      //使怪物向攻击方向移动
+            //rigidbody2d.MovePosition(m_Position);
+
+            Core.Movement.SetVelocity(m_HitDirection * parameter.hitSpeed * Time.deltaTime);
+        }
+
+        else
+        {
+            Core.Movement.SetVelocityZero();
         }
     }
 
@@ -187,10 +205,9 @@ public abstract class EnemyFSM : MonoBehaviour
             Destroy(transform.parent.gameObject);       //摧毁敌人的父物体，也将摧毁父物体的所有子物体
         }
     }
+    #endregion
 
-
-
-
+    #region Trigger Detections
     //各种物理检测
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -223,9 +240,9 @@ public abstract class EnemyFSM : MonoBehaviour
     {
         Gizmos.DrawWireSphere(parameter.attackPoint.position, parameter.attackArea);    //设置攻击范围的圆心和半径
     }
+    #endregion
 
-
-
+    #region Getters
     //获取成员变量
     public float GetLastAttackTime()
     {
@@ -246,8 +263,9 @@ public abstract class EnemyFSM : MonoBehaviour
     {
         return m_RightTopPosition;
     }
+    #endregion
 
-
+    #region Setters
     //设置成员变量
     public void SetLastAttackTime(float currentTime)
     {
@@ -258,4 +276,5 @@ public abstract class EnemyFSM : MonoBehaviour
     {
         m_LastHitTime = currentTime;
     }
+    #endregion
 }
