@@ -8,6 +8,9 @@ public class PlayerAttackState : PlayerAbilityState
 
     Weapon m_Weapon;
 
+    float m_VelocityToSet;      //用于攻击期间持续移动玩家（不能只在一帧移动玩家）
+    bool m_SetVelocity;         //用于检测何时结束移动玩家
+
     public PlayerAttackState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName)
     {
     }
@@ -16,6 +19,10 @@ public class PlayerAttackState : PlayerAbilityState
     {
         base.Enter();
 
+        m_SetVelocity = false;
+
+        isAttack = true;
+
         m_Weapon.EnterWeapon();
     }
 
@@ -23,8 +30,24 @@ public class PlayerAttackState : PlayerAbilityState
     { 
          base.Exit();
 
+        isAttack = false;
+
         m_Weapon.ExitWeapon();
     }
+
+    public override void LogicUpdate()
+    {
+        base.LogicUpdate();
+
+        if (m_SetVelocity)
+        {
+            core.Movement.SetVelocity(m_VelocityToSet * core.Movement.FacingDirection);      //持续调用此函数以持续移动玩家
+        }
+    }
+
+
+
+
 
     public void SetWeapon(Weapon weapon)
     {
@@ -32,6 +55,13 @@ public class PlayerAttackState : PlayerAbilityState
         m_Weapon.InitializeWeapon(this);        //给武器脚本攻击状态的索引
     }
 
+    public void SetPlayerVelocity(float velocity)       //用于动画帧事件
+    {
+        core.Movement.SetVelocity(velocity * core.Movement.FacingDirection);     //攻击时给予玩家移动速度
+
+        m_VelocityToSet = velocity;
+        m_SetVelocity = true;
+    }
 
     #region Animation Trigger
     public override void AnimationFinishTrigger()

@@ -17,23 +17,22 @@ public class Player : MonoBehaviour
     #endregion
 
     #region Components
+    public Core Core { get; private set; }
+
     public PlayerInputHandler InputHandler { get; private set; }
     public PlayerInventory Inventory { get; private set; }
-    public Animator Animator { get; private set; }
     public Rigidbody2D Rigidbody2d { get; private set; }
     #endregion
 
     #region Other Variable
-    public Vector2 CurrentVelocity { get; private set; }
-    public Vector2 LastVelocity { get; private set; }     //用于动画朝向
 
-    Vector2 m_WorkSpace;
     #endregion
-
 
     #region Unity Callback Functions
     private void Awake()
     {
+        Core = GetComponentInChildren<Core>();      //从子物体那调用Core脚本
+
         StateMachine = new PlayerStateMachine();
 
         //初始化各状态
@@ -45,7 +44,6 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        Animator = GetComponent<Animator>();
         Rigidbody2d = GetComponent<Rigidbody2D>();
 
         InputHandler = GetComponent<PlayerInputHandler>();
@@ -58,31 +56,14 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        //Core.LogicUpdate();     //获取当前速度
+
         StateMachine.currentState.LogicUpdate();
     }
 
     private void FixedUpdate()
     {
         StateMachine.currentState.PhysicsUpdate();
-    }
-    #endregion
-
-
-    #region Setters
-    public void SetVelocity(Vector2 velocity)
-    {
-        m_WorkSpace = velocity;
-        Rigidbody2d.velocity = m_WorkSpace;     //移动的关键
-
-        CurrentVelocity = m_WorkSpace;
-
-        if (CurrentVelocity != Vector2.zero)        //防止玩家停止移动后角色固定朝向上
-        {
-            LastVelocity = CurrentVelocity.normalized;
-        }
-
-        Animator.SetFloat("MoveX", LastVelocity.x);     //根据按键输入为动画设置方向
-        Animator.SetFloat("MoveY", LastVelocity.y);  
     }
     #endregion
 }

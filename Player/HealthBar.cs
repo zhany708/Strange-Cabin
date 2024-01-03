@@ -8,7 +8,7 @@ public class HealthBar : MonoBehaviour
     public Image hpImage;
     public Image hpEffectImage;     //血量缓冲图片
 
-    PlayerController m_Player;
+    Player m_Player;
     float m_MaxHp;
     float m_CurrentHp;
     float m_BuffTime = 0.5f;    //缓冲时间
@@ -17,9 +17,9 @@ public class HealthBar : MonoBehaviour
 
     void Start()
     {
-        m_Player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();       //根据标签获取玩家的控制器脚本
+        m_Player = GameObject.FindWithTag("Player").GetComponent<Player>();       //根据标签获取玩家的控制器脚本
 
-        m_MaxHp = m_Player.health;
+        //m_MaxHp = m_Player.PlayerData.Health;
         m_CurrentHp = m_MaxHp;
 
         UpdateHealthBar();

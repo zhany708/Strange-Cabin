@@ -9,21 +9,12 @@ public class PlayerIdleState : PlayerGroundedState
 
     }
 
-    public override void DoChecks()
-    {
-        base.DoChecks();
-    }
 
     public override void Enter()
     {
         base.Enter();
 
-        player.SetVelocity(Vector2.zero);       //将玩家速度归零
-    }
-
-    public override void Exit()
-    {
-        base.Exit();
+        core.Movement.SetVelocityZero();       //将玩家速度归零
     }
 
     public override void LogicUpdate()
@@ -34,10 +25,5 @@ public class PlayerIdleState : PlayerGroundedState
         {
             stateMachine.ChangeState(player.MoveState);
         }
-    }
-
-    public override void PhysicsUpdate()
-    {
-        base.PhysicsUpdate();
     }
 }

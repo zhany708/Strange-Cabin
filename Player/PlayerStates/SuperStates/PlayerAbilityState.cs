@@ -10,21 +10,13 @@ public class PlayerAbilityState : PlayerState
     {
     }
 
-    public override void DoChecks()
-    {
-        base.DoChecks();
-    }
+
 
     public override void Enter()
     {
         base.Enter();
 
         isAbilityDone = false;
-    }
-
-    public override void Exit()
-    {
-        base.Exit();
     }
 
     public override void LogicUpdate()
@@ -35,10 +27,5 @@ public class PlayerAbilityState : PlayerState
         {
             stateMachine.ChangeState(player.IdleState);     //攻击结束后进入闲置状态
         }
-    }
-
-    public override void PhysicsUpdate()
-    {
-        base.PhysicsUpdate();
     }
 }

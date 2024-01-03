@@ -9,26 +9,10 @@ public class PlayerMoveState : PlayerGroundedState
 
     }
 
-    public override void DoChecks()
-    {
-        base.DoChecks();
-    }
-
-    public override void Enter()
-    {
-        base.Enter();
-    }
-
-    public override void Exit()
-    {
-        base.Exit();
-    }
 
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-
-        player.SetVelocity(playerData.MovementVelocity * input);        //为玩家刚体赋予速度
 
         if (input.x == 0f && input.y == 0f)
         {
@@ -39,5 +23,11 @@ public class PlayerMoveState : PlayerGroundedState
     public override void PhysicsUpdate()
     {
         base.PhysicsUpdate();
+
+        if (!isAttack)
+        {
+            core.Movement.SetVelocity(playerData.MovementVelocity * input);        //禁止玩家攻击时自由移动
+            core.Movement.SetAnimationDirection(core.Movement.FacingDirection, Vector2.zero);       //不需要减去玩家的当前坐标，因此第二个参数为0
+        }
     }
 }
