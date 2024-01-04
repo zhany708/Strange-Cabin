@@ -16,6 +16,10 @@ MonoBehaviour:
   - AttackName: DownToUp
     MovementSpeed: 0.5
     DamageAmount: 3
+    KnockbackStrength: 2
+    KnockbackAngle: {x: 1, y: 1}
   - AttackName: UpToDown
     MovementSpeed: 0.7
     DamageAmount: 5
+    KnockbackStrength: 3
+    KnockbackAngle: {x: 1, y: 2}

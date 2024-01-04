@@ -9,5 +9,6 @@ public class PlayerData : ScriptableObject      //允许通过此脚本创建Asset
 {
     [Header("Move State")]
     public float MovementVelocity = 2f;
-    public float Health;
+    public float MaxHealth = 999f;
+    public float CurrentHealth;
 }

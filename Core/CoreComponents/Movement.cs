@@ -10,6 +10,8 @@ public class Movement : CoreComponent
 
     public Vector2 FacingDirection { get; private set; }
 
+    //public bool CanSetVelocity { get; set; }
+
     Vector2 m_WorkSpace;
 
     protected override void Awake()
@@ -17,32 +19,39 @@ public class Movement : CoreComponent
         base.Awake();
 
         Rigidbody2d = GetComponentInParent<Rigidbody2D>();
+
+        //CanSetVelocity = true;
     }
 
-    /*
-    public void LogicUpdate()
-    {
-        CurrentVelocity = Rigidbody2d.velocity;     //通过刚体实时获取当前速度
-    }
-    */
-
+    
+    public void LogicUpdate() { }
 
     #region Setters
     public void SetVelocityZero()
     {
-        Rigidbody2d.velocity = Vector2.zero;
+        m_WorkSpace = Vector2.zero;
+
+        SetFinalVelocity();
     }
 
-    public void SetVelocity(Vector2 velocity)
+    public void SetVelocity(float velocity, Vector2 direction)
     {
-        m_WorkSpace = velocity;
-        Rigidbody2d.velocity = m_WorkSpace;     //移动的关键
+        m_WorkSpace = velocity * direction;
+        
+        SetFinalVelocity();
+    }
+
+    public void SetFinalVelocity()
+    {
+        Rigidbody2d.velocity = m_WorkSpace;
 
         if (m_WorkSpace != Vector2.zero)        //防止玩家停止移动后角色固定朝向上
         {
             FacingDirection = m_WorkSpace.normalized;
-        }
+        }       
     }
+
+
 
     public void SetAnimationDirection(Vector2 faceDirection, Vector2 currentDirection)      //如果不需要减去当前坐标，则第二个参数用Vector2.Zero
     {
