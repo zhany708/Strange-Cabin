@@ -24,9 +24,9 @@ public class PlayerMoveState : PlayerGroundedState
     {
         base.PhysicsUpdate();
 
-        if (!isAttack)
+        if (!isAttack)   //禁止玩家攻击时自由移动
         {
-            core.Movement.SetVelocity(playerData.MovementVelocity * input);        //禁止玩家攻击时自由移动
+            core.Movement.SetVelocity(playerData.MovementVelocity, input);       
             core.Movement.SetAnimationDirection(core.Movement.FacingDirection, Vector2.zero);       //不需要减去玩家的当前坐标，因此第二个参数为0
         }
     }

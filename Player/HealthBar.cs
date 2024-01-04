@@ -19,7 +19,7 @@ public class HealthBar : MonoBehaviour
     {
         m_Player = GameObject.FindWithTag("Player").GetComponent<Player>();       //根据标签获取玩家的控制器脚本
 
-        //m_MaxHp = m_Player.PlayerData.Health;
+        //m_MaxHp = m_Player
         m_CurrentHp = m_MaxHp;
 
         UpdateHealthBar();

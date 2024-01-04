@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
     public PlayerStateMachine StateMachine { get; private set; }
     public PlayerIdleState IdleState { get; private set; }
     public PlayerMoveState MoveState { get; private set; }
+    public PlayerHitState HitState { get; private set; }
     public PlayerAttackState PrimaryAttackState { get; private set; }
     public PlayerAttackState SecondaryAttackState { get; private set; }
 
@@ -21,7 +22,6 @@ public class Player : MonoBehaviour
 
     public PlayerInputHandler InputHandler { get; private set; }
     public PlayerInventory Inventory { get; private set; }
-    public Rigidbody2D Rigidbody2d { get; private set; }
     #endregion
 
     #region Other Variable
@@ -38,20 +38,21 @@ public class Player : MonoBehaviour
         //初始化各状态
         IdleState = new PlayerIdleState(this, StateMachine, m_PlayerData, "Idle");      
         MoveState = new PlayerMoveState(this, StateMachine, m_PlayerData, "Move");
+        HitState = new PlayerHitState(this, StateMachine, m_PlayerData, "Hit");
         PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack");
         SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack");
     }
 
     private void Start()
     {
-        Rigidbody2d = GetComponent<Rigidbody2D>();
-
         InputHandler = GetComponent<PlayerInputHandler>();
         Inventory = GetComponent<PlayerInventory>();
 
         PrimaryAttackState.SetWeapon(Inventory.weapon[(int)CombatInputs.primary]);      //初始化主武器
 
         StateMachine.Initialize(IdleState);     //初始化状态为闲置
+
+        m_PlayerData.CurrentHealth = m_PlayerData.MaxHealth;        //每次游戏开始时重置角色的当前生命值
     }
 
     private void Update()

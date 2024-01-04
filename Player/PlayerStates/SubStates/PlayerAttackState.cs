@@ -35,30 +35,26 @@ public class PlayerAttackState : PlayerAbilityState
         m_Weapon.ExitWeapon();
     }
 
-    public override void LogicUpdate()
+    public override void PhysicsUpdate()
     {
-        base.LogicUpdate();
+        base.PhysicsUpdate();
 
         if (m_SetVelocity)
         {
-            core.Movement.SetVelocity(m_VelocityToSet * core.Movement.FacingDirection);      //持续调用此函数以持续移动玩家
+            core.Movement.SetVelocity(m_VelocityToSet, core.Movement.FacingDirection);      //持续调用此函数以持续移动玩家
         }
     }
-
-
 
 
 
     public void SetWeapon(Weapon weapon)
     {
         m_Weapon = weapon;      //设置新武器
-        m_Weapon.InitializeWeapon(this);        //给武器脚本攻击状态的索引
+        m_Weapon.InitializeWeapon(this, core);        //给武器脚本攻击状态的索引
     }
 
     public void SetPlayerVelocity(float velocity)       //用于动画帧事件
     {
-        core.Movement.SetVelocity(velocity * core.Movement.FacingDirection);     //攻击时给予玩家移动速度
-
         m_VelocityToSet = velocity;
         m_SetVelocity = true;
     }

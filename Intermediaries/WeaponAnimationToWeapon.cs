@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WeaponAnimationToWeapon : MonoBehaviour    //此脚本作为中转站，专门调用其他脚本中用于动画帧事件的函数
+public class WeaponAnimationToWeapon : MonoBehaviour    //此脚本作为中转站，专门调用Weapon脚本中用于动画帧事件的函数
 {
     Weapon m_Weapon;
 
@@ -11,6 +11,9 @@ public class WeaponAnimationToWeapon : MonoBehaviour    //此脚本作为中转站，专门
     {
         m_Weapon = GetComponentInParent<Weapon>();      //调用父物体中含有Weapon脚本的组件
     }
+
+
+
 
     private void AnimationFinishTrigger()
     {

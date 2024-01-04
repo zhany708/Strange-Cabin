@@ -9,9 +9,7 @@ public class PlayerStateMachine
     public void Initialize(PlayerState startingState)
     {
         currentState = startingState;
-        currentState.Enter();
- 
-    
+        currentState.Enter();   
     }
 
     public void ChangeState(PlayerState newState)

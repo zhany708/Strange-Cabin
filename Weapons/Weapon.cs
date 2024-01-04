@@ -13,6 +13,7 @@ public class Weapon : MonoBehaviour
 
     protected PlayerAttackState state;
     protected Player player;
+    protected Core core;
 
     protected int attackCounter = 0;        //表示武器的连击次数
 
@@ -65,9 +66,10 @@ public class Weapon : MonoBehaviour
 
 
 
-    public void InitializeWeapon(PlayerAttackState state)       //引用攻击状态脚本
+    public void InitializeWeapon(PlayerAttackState state, Core core)       //引用攻击状态脚本
     {
         this.state = state;
+        this.core = core;
     }
 
     #region Animation Trigger

@@ -166,11 +166,13 @@ public class PlayerController : MonoBehaviour
             float shakeIntensity;
             float shakeDuration;
 
-            if (Time.time - other.GetComponent<EnemyFSM>().GetLastHitTime() > other.GetComponent<EnemyFSM>().parameter.hitInterval)     //当敌人无敌时间结束时
+            if (Time.time - other.GetComponent<EnemyFSM>().GetLastHitTime() > other.GetComponent<EnemyFSM>().Parameter.HitInterval)     //当敌人无敌时间结束时
             {
+                /*
                 //敌人受伤
                 other.GetComponent<EnemyFSM>().Damage(damage);
                 other.GetComponent<EnemyFSM>().GetHit(m_MoveDirection);
+                */
 
                 shakeIntensity = m_Animator.GetFloat("SwingType") == 1 ? 1.5f : 2f;
                 shakeDuration = m_Animator.GetFloat("SwingType") == 1 ? 0.3f : 0.5f;
