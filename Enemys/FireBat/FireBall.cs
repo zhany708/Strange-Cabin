@@ -1,13 +1,16 @@
-using System.Collections;
+ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.WSA;
 
 public class FireBall : MonoBehaviour
 {
+    public int DamageAmount = 2;
+    public float DamageKnockbackStrength = 2f;
+
+
     Rigidbody2D m_RigidBody2d;
     Vector2 m_AttackDirection;
-    int m_damage = 2;
 
     void Awake()
     {
@@ -31,14 +34,30 @@ public class FireBall : MonoBehaviour
     }
 
 
+
+    
     private void OnCollisionEnter2D(Collision2D other)
+    {        
+        Destroy(gameObject);      //使火球碰到其他碰撞体（墙壁，家具等）时自毁
+    }
+    
+    
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        PlayerController player = other.collider.GetComponent<PlayerController>();      //调用玩家函数
-        if (player != null)
+        Idamageable damageable = other.GetComponent<Idamageable>();
+        IKnockbackable knockbackable = other.GetComponent<IKnockbackable>();
+
+        if (damageable != null)
         {
-            player.PlayerGetHit(m_damage, m_AttackDirection);
+            damageable.Damage(DamageAmount);
+            damageable.GetHit(m_AttackDirection);
         }
 
-        Destroy(gameObject);    
+        if (knockbackable != null)
+        {
+            knockbackable.KnockBack(DamageKnockbackStrength, m_AttackDirection);
+        }
+
+        Destroy(gameObject);
     }
 }

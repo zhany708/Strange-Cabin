@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ReactState : IState
+public class ReactState : IEnemyState
 {
 
     EnemyFSM m_manager;
@@ -11,7 +11,7 @@ public class ReactState : IState
     public ReactState(EnemyFSM manager)
     {
         m_manager = manager;
-        m_parameter = manager.parameter;
+        m_parameter = manager.Parameter;
 
     }
 
@@ -21,12 +21,15 @@ public class ReactState : IState
     }
 
 
-    public void OnUpdate()
+    public void OnLogicUpdate()
     {
 
     }
 
+    public void OnPhysicsUpdate()
+    {
 
+    }
 
     public void OnExit()
     {

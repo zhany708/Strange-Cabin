@@ -17,27 +17,25 @@ public enum StateType
 public class Parameter
 {
     //基础信息
-    public float health;
-    public float moveSpeed;
-    public float chaseSpeed;
-    public float idleDuration;      //待机时长
-    public Transform[] patrolPoints;    //巡逻范围
-    public float stoppingDistance;      //敌人与玩家的最小距离
+    public float Health;
+    public float MoveSpeed;
+    public float ChaseSpeed;
+    public float IdleDuration;      //待机时长
+    public Transform[] PatrolPoints;    //巡逻范围
+    public float StoppingDistance;      //敌人与玩家的最小距离
 
     //攻击相关
-    public Transform target;     //玩家的坐标
-    public LayerMask targetLayer;
-    public Transform[] chasePoints;     //追击范围
-    public Transform attackPoint;   //攻击范围的圆心位置
-    public float attackArea;        //圆的半径参数
-    public float attackInterval;    //攻击间隔
+    public Transform Target;     //玩家的坐标
+    public LayerMask TargetLayer;
+    public Transform[] ChasePoints;     //追击范围
+    public Transform AttackPoint;   //攻击范围的圆心位置
+    public float AttackArea;        //圆的半径参数
+    public float AttackInterval;    //攻击间隔
 
     //受击相关
-    public bool isHit;
-    public float hitSpeed;      //受击移动速度
-    public float hitInterval;   //无敌时间
-
-    public Animator animator;
+    //public bool IsHit;
+    public float HitSpeed;      //受击移动速度
+    public float HitInterval;   //无敌时间
 }
 #endregion
 
@@ -45,40 +43,34 @@ public class Parameter
 
 
 
-public abstract class EnemyFSM : MonoBehaviour, Idamageable
+public abstract class EnemyFSM : MonoBehaviour
 {
     #region Components
-    public Parameter parameter;
+    public Parameter Parameter;
     public Core Core { get; private set; }
 
-    protected Rigidbody2D rigidbody2d;
-    protected Dictionary<StateType, IState> states = new Dictionary<StateType, IState>();     //使用字典注册所有状态
+    protected Dictionary<StateType, IEnemyState> states = new Dictionary<StateType, IEnemyState>();     //使用字典注册所有状态
 
-    IState m_CurrentState;
+    IEnemyState m_CurrentState;
     #endregion
 
     #region Variables
-    Vector2 m_HitDirection;     //受击方向
-    Vector2 m_Position;     //用于受击移动
-
+    public bool CanHit { get; private set; }
 
     Vector2 m_LeftDownPosition;     //用于随机生成巡逻坐标
     Vector2 m_RightTopPosition;
-
 
     float m_LastAttackTime;     //上次攻击的时间
     float m_LastHitTime;        //上次受击时间
     #endregion
 
     #region Unity CallBack Functions
-    protected void Awake()      //更改为Virtual方便子类更改此函数
+    protected void Awake()      
     {
-        parameter.animator = GetComponent<Animator>();
-        rigidbody2d = GetComponent<Rigidbody2D>();
         Core = GetComponentInChildren<Core>();
 
-        m_LeftDownPosition = parameter.patrolPoints[0].transform.position;      //在脚本中储存巡逻点
-        m_RightTopPosition = parameter.patrolPoints[1].transform.position;
+        m_LeftDownPosition = Parameter.PatrolPoints[0].transform.position;      //在脚本中储存巡逻点
+        m_RightTopPosition = Parameter.PatrolPoints[1].transform.position;
 
         foreach(Transform child in transform.parent)    //在场景中删除所有巡逻点
         {
@@ -94,8 +86,8 @@ public abstract class EnemyFSM : MonoBehaviour, Idamageable
 
     protected virtual void Start()
     {
-        m_LastAttackTime = -parameter.attackInterval;
-
+        m_LastAttackTime = -Parameter.AttackInterval;
+        CanHit = true;
         
         states.Add(StateType.Idle, new IdleState(this));        //给字典添加所有状态
         states.Add(StateType.Patrol, new PatrolState(this));
@@ -111,14 +103,14 @@ public abstract class EnemyFSM : MonoBehaviour, Idamageable
 
     protected void Update()
     {
-                               
+        m_CurrentState.OnLogicUpdate();      //持续执行当前状态的逻辑相关函数                      
     }
 
     protected void FixedUpdate()
     {
         DetectHit();
 
-        m_CurrentState.OnUpdate();      //持续执行当前状态的OnUpdate函数                           
+        m_CurrentState.OnPhysicsUpdate();            //持续执行当前状态的物理相关函数        
     }
     #endregion
 
@@ -135,61 +127,25 @@ public abstract class EnemyFSM : MonoBehaviour, Idamageable
         m_CurrentState.OnEnter();
     }
 
-    /*
-    //更改当前朝向
-    public void FaceTo(Vector2 faceDirection, Vector2 currentDirection)     
-    {
-        if (faceDirection != null)
-        {
-            Vector2 direction = (faceDirection - currentDirection).normalized;      //只需要方向
-
-            //使怪物播放朝向坐标的动画
-            parameter.animator.SetFloat("MoveX", direction.x);
-            parameter.animator.SetFloat("MoveY", direction.y);
-        }
-    }
-    */
-
     //检测玩家是否超出追击范围
     public bool CheckOutside() 
     {
-        float minX = Mathf.Min(parameter.chasePoints[0].position.x, parameter.chasePoints[1].position.x);
-        float minY = Mathf.Min(parameter.chasePoints[0].position.y, parameter.chasePoints[1].position.y);
-        float maxX = Mathf.Max(parameter.chasePoints[0].position.x, parameter.chasePoints[1].position.x);
-        float maxY = Mathf.Max(parameter.chasePoints[0].position.y, parameter.chasePoints[1].position.y);
+        float minX = Mathf.Min(Parameter.ChasePoints[0].position.x, Parameter.ChasePoints[1].position.x);
+        float minY = Mathf.Min(Parameter.ChasePoints[0].position.y, Parameter.ChasePoints[1].position.y);
+        float maxX = Mathf.Max(Parameter.ChasePoints[0].position.x, Parameter.ChasePoints[1].position.x);
+        float maxY = Mathf.Max(Parameter.ChasePoints[0].position.y, Parameter.ChasePoints[1].position.y);
 
-        return parameter.target.position.x < minX || parameter.target.position.x > maxX || parameter.target.position.y < minY || parameter.target.position.y > maxY;
+        return Parameter.Target.position.x < minX || Parameter.Target.position.x > maxX || Parameter.Target.position.y < minY || Parameter.Target.position.y > maxY;
     }
     #endregion
 
     #region Hit Functions
     //受击相关
-    public void Damage(float amount)      //受击时调用此函数
-    {      
-        TransitionState(StateType.Hit);
-        parameter.health -= amount;
-        
-    }
-
-    public void GetHit(Vector2 direction)      //受击时调用此函数，参数为玩家攻击时面对的方向
-    {
-        Core.Movement.SetAnimationDirection(Vector2.zero, direction);
-
-        //使怪物播放朝向玩家的反方向的动画
-        //parameter.animator.SetFloat("MoveX", -direction.x);
-        //parameter.animator.SetFloat("MoveY", -direction.y);
-
-        m_HitDirection = direction;        
-    }
-
     protected void DetectHit()
     {
-        if (parameter.isHit)        //只有受击动画的前60%才会移动
+        if (Core.Combat.IsHit && CanHit)        //只有受击动画的前60%才会移动
         {
-            //m_Position = rigidbody2d.position + m_HitDirection * parameter.hitSpeed * Time.deltaTime;      //使怪物向攻击方向移动
-            //rigidbody2d.MovePosition(m_Position);
-
-            Core.Movement.SetVelocity(m_HitDirection * parameter.hitSpeed * Time.deltaTime);
+            TransitionState(StateType.Hit);
         }
 
         else
@@ -213,7 +169,7 @@ public abstract class EnemyFSM : MonoBehaviour, Idamageable
     {
         if (other.CompareTag("Player"))
         {
-            parameter.target = other.transform;     //储存玩家的位置信息
+            Parameter.Target = other.transform;     //储存玩家的位置信息
         }
     }
 
@@ -221,7 +177,7 @@ public abstract class EnemyFSM : MonoBehaviour, Idamageable
     {
         if (other.CompareTag("Player"))
         {
-            parameter.target = null;     //玩家退出范围时清空
+            Parameter.Target = null;     //玩家退出范围时清空
         }
     }
 
@@ -238,7 +194,7 @@ public abstract class EnemyFSM : MonoBehaviour, Idamageable
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireSphere(parameter.attackPoint.position, parameter.attackArea);    //设置攻击范围的圆心和半径
+        Gizmos.DrawWireSphere(Parameter.AttackPoint.position, Parameter.AttackArea);    //设置攻击范围的圆心和半径
     }
     #endregion
 
@@ -275,6 +231,16 @@ public abstract class EnemyFSM : MonoBehaviour, Idamageable
     public void SetLastHitTime(float currentTime)
     {
         m_LastHitTime = currentTime;
+    }
+
+    public void SetCanHitTrue()
+    {
+        CanHit = true;
+    }
+
+    public void SetCanHitFalse()
+    {
+        CanHit = false;
     }
     #endregion
 }
