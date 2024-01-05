@@ -41,12 +41,13 @@ public class AggressiveWeapon : Weapon
         foreach (Idamageable item in m_DetectedDamageables.ToList())      //对每一个有可造成伤害接口的碰撞体生效，加ToList防止敌人死亡后出现Bug（ToList可以复制原始List）
         {
             item.Damage(details.DamageAmount);      //对被检测到碰撞体造成伤害
-            item.GetHit(player.Core.Movement.FacingDirection);      //使被检测碰撞体面向玩家
+            item.GetHit(Movement.FacingDirection);      //使被检测碰撞体面向玩家
         }
 
         foreach (IKnockbackable item in m_DetectedKnockbackables.ToList())
         {
-            item.KnockBack(details.KnockbackStrength, core.Movement.FacingDirection);       //击退目标
+            item.KnockBack(details.KnockbackStrength, Movement.FacingDirection);       //击退目标
+            
         }
     }
 

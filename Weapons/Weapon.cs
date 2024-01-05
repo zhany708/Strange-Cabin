@@ -12,8 +12,19 @@ public class Weapon : MonoBehaviour
     protected Animator weaponAnimator;
 
     protected PlayerAttackState state;
-    protected Player player;
     protected Core core;
+
+    protected Movement Movement
+    {
+        get
+        {
+            if (m_Movement) { return m_Movement; }      //检查组件是否为空
+            m_Movement = core.GetCoreComponent<Movement>();
+            return m_Movement;
+        }
+    }
+    private Movement m_Movement;
+
 
     protected int attackCounter = 0;        //表示武器的连击次数
 
@@ -22,8 +33,6 @@ public class Weapon : MonoBehaviour
     {
         baseAnimator = transform.Find("Base").GetComponent<Animator>();       //通过Find调用子物体上的动画器组件
         weaponAnimator = transform.Find("Weapon").GetComponent <Animator>();    
-        
-        player = GetComponentInParent<Player>();        //调用父物件中含有Player脚本的物件
         
         gameObject.SetActive(false);        //不攻击时隐藏物件
     }
@@ -41,10 +50,10 @@ public class Weapon : MonoBehaviour
 
 
         //通过Core中的Facing Direction向量确定动画方向,然后设置攻击为True
-        baseAnimator.SetFloat("MoveX", player.Core.Movement.FacingDirection.x);
-        baseAnimator.SetFloat("MoveY", player.Core.Movement.FacingDirection.y);
-        weaponAnimator.SetFloat("MoveX", player.Core.Movement.FacingDirection.x);
-        weaponAnimator.SetFloat("MoveY", player.Core.Movement.FacingDirection.y);
+        baseAnimator.SetFloat("MoveX", Movement.FacingDirection.x);
+        baseAnimator.SetFloat("MoveY", Movement.FacingDirection.y);
+        weaponAnimator.SetFloat("MoveX", Movement.FacingDirection.x);
+        weaponAnimator.SetFloat("MoveY", Movement.FacingDirection.y);
 
         baseAnimator.SetBool("Attack", true);
         weaponAnimator.SetBool("Attack", true);
