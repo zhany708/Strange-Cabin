@@ -24,6 +24,7 @@ public class IdleState : IEnemyState
     public void OnEnter()
     {
         //Debug.Log("IdleState");
+        m_Core.Animator.SetBool("Flying", true);
     }
 
 
@@ -31,7 +32,7 @@ public class IdleState : IEnemyState
     {
         m_IdleTimer += Time.deltaTime;
 
-        if (m_Core.Combat.IsHit && Time.time - m_Manager.GetLastHitTime() >= m_Parameter.HitInterval)     //¼ì²âÊÇ·ñÊÜ»÷
+        if (m_Manager.Combat.IsHit && Time.time - m_Manager.GetLastHitTime() >= m_Parameter.HitInterval)     //¼ì²âÊÇ·ñÊÜ»÷
         {
             m_Manager.TransitionState(StateType.Hit);
         }

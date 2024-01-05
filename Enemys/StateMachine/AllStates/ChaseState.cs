@@ -24,6 +24,7 @@ public class ChaseState : IEnemyState
 
     public void OnEnter()
     {
+        m_Core.Animator.SetBool("Flying", true);
         //Debug.Log("ChaseState");
     }
 
@@ -32,12 +33,12 @@ public class ChaseState : IEnemyState
     {
         if (m_Parameter.Target != null)
         {
-            m_Core.Movement.SetAnimationDirection(m_Parameter.Target.position, m_Manager.transform.position);       //使怪物朝向玩家
+            m_Manager.Movement.SetAnimationDirection(m_Parameter.Target.position, m_Manager.transform.position);       //使怪物朝向玩家
 
             m_DistanceToPlayer = Vector2.Distance(m_Manager.transform.position, m_Parameter.Target.position);       //计算敌人与玩家的距离
         }
 
-        if (m_Core.Combat.IsHit && Time.time - m_Manager.GetLastHitTime() >= m_Parameter.HitInterval)     //检测是否受击
+        if (m_Manager.Combat.IsHit && Time.time - m_Manager.GetLastHitTime() >= m_Parameter.HitInterval)     //检测是否受击
         {
             m_Manager.TransitionState(StateType.Hit);
         }

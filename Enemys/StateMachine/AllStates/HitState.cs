@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class HitState : IEnemyState
 {
@@ -26,9 +27,9 @@ public class HitState : IEnemyState
     {
         //Debug.Log("HitState");
         m_Manager.SetCanHitFalse();     //使敌人无法被重复攻击
-        m_Parameter.Health -= m_Core.Combat.DamageAmount;   //减去生命值
 
-        m_Core.Animator.SetTrigger("Hit");
+        m_Core.Animator.SetBool("Flying", false);
+        m_Core.Animator.SetBool("Hit", true);
         m_Manager.SetLastHitTime(Time.time);     //设置当前时间为上次受击时间
     }
 
@@ -37,9 +38,8 @@ public class HitState : IEnemyState
     {
         animatorInfo = m_Core.Animator.GetCurrentAnimatorStateInfo(0);       //获取当前动画
 
-        if (m_Parameter.Health <= 0 )
+        if (m_Manager.Stats.GetCurrentHealth() <= 0 )
         {
-            m_Parameter.Health = 0;
             m_Manager.TransitionState(StateType.Death);
         }
 
@@ -56,7 +56,9 @@ public class HitState : IEnemyState
 
     public void OnExit()
     {
-        m_Core.Combat.SetIsHitFalse();
+        m_Core.Animator.SetBool("Hit", false);
+
+        m_Manager.Combat.SetIsHitFalse();
 
         m_Manager.SetCanHitTrue();      //使敌人可以再次被击中
     }

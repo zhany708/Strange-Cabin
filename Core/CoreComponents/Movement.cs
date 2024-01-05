@@ -4,13 +4,12 @@ using System.Data.Common;
 using System.Xml.Serialization;
 using UnityEngine;
 
-public class Movement : CoreComponent
+public class Movement : CoreComponent   //用于管理移动
 {
     public Rigidbody2D Rigidbody2d {  get; private set; }
 
     public Vector2 FacingDirection { get; private set; }
 
-    //public bool CanSetVelocity { get; set; }
 
     Vector2 m_WorkSpace;
 
@@ -19,18 +18,22 @@ public class Movement : CoreComponent
         base.Awake();
 
         Rigidbody2d = GetComponentInParent<Rigidbody2D>();
-
-        //CanSetVelocity = true;
     }
 
     
-    public void LogicUpdate() { }
+    //public override void LogicUpdate() { }
 
     #region Setters
     public void SetVelocityZero()
     {
         m_WorkSpace = Vector2.zero;
 
+        SetFinalVelocity();
+    }
+
+    public void ReduceVelocity(float reduceAmount)
+    {
+        m_WorkSpace *= (1 - reduceAmount);
         SetFinalVelocity();
     }
 

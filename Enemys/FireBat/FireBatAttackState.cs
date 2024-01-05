@@ -29,7 +29,7 @@ public class FireBatAttackState : AttackState
     {
         animatorInfo = core.Animator.GetCurrentAnimatorStateInfo(0);       //获取当前动画
 
-        if (core.Combat.IsHit)     //检测是否受击
+        if (manager.Combat.IsHit)     //检测是否受击
         {
             manager.TransitionState(StateType.Hit);
         }

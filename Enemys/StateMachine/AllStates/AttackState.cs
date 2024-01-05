@@ -24,8 +24,8 @@ public class AttackState : IEnemyState
     public virtual void OnEnter()
     {
         //Debug.Log("AttackState");
-
-        core.Animator.SetTrigger("Attack");
+        core.Animator.SetBool("Flying", false);
+        core.Animator.SetBool("Attack", true);
         manager.SetLastAttackTime(Time.time);     //设置当前时间为上次攻击时间
     }
 
@@ -34,7 +34,7 @@ public class AttackState : IEnemyState
     {
         animatorInfo = core.Animator.GetCurrentAnimatorStateInfo(0);       //获取当前动画
 
-        if (core.Combat.IsHit && Time.time - manager.GetLastHitTime() >= parameter.HitInterval)     //检测是否受击
+        if (manager.Combat.IsHit && Time.time - manager.GetLastHitTime() >= parameter.HitInterval)     //检测是否受击
         {
             manager.TransitionState(StateType.Hit);
         }
@@ -48,5 +48,5 @@ public class AttackState : IEnemyState
     public void OnPhysicsUpdate() { }
  
 
-    public void OnExit() { }
+    public void OnExit() { core.Animator.SetBool("Attack", false); }
 }

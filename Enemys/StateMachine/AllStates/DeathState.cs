@@ -20,7 +20,7 @@ public class DeathState : IEnemyState
 
     public void OnEnter()
     {
-        //m_Parameter.animator.SetBool("Death", true);
+        m_Core.Animator.SetBool("Flying", false);
         m_Core.Animator.SetBool("Death", true) ;
     }
 

@@ -26,6 +26,7 @@ public class PatrolState : IEnemyState
     public void OnEnter()
     {
         //Debug.Log("PatrolState");
+        m_Core.Animator.SetBool("Flying", true);
 
         //生成随机坐标
         m_RandomPosition = new Vector2(Random.Range(m_Manager.GetLeftDownPos().x, m_Manager.GetRightTopPos().x), Random.Range(m_Manager.GetLeftDownPos().y, m_Manager.GetRightTopPos().y));
@@ -35,9 +36,9 @@ public class PatrolState : IEnemyState
     public void OnLogicUpdate()
     {
         m_PatrolTimer += Time.deltaTime;
-        m_Core.Movement.SetAnimationDirection(m_RandomPosition, m_Manager.transform.position);      //朝向巡逻点的方向
+        m_Manager.Movement.SetAnimationDirection(m_RandomPosition, m_Manager.transform.position);      //朝向巡逻点的方向
 
-        if (m_Core.Combat.IsHit && Time.time - m_Manager.GetLastHitTime() >= m_Parameter.HitInterval)     //检测是否受击
+        if (m_Manager.Combat.IsHit && Time.time - m_Manager.GetLastHitTime() >= m_Parameter.HitInterval)     //检测是否受击
         {
             m_Manager.TransitionState(StateType.Hit);
         }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.Windows;
 
 
@@ -17,7 +18,6 @@ public enum StateType
 public class Parameter
 {
     //基础信息
-    public float Health;
     public float MoveSpeed;
     public float ChaseSpeed;
     public float IdleDuration;      //待机时长
@@ -33,8 +33,6 @@ public class Parameter
     public float AttackInterval;    //攻击间隔
 
     //受击相关
-    //public bool IsHit;
-    public float HitSpeed;      //受击移动速度
     public float HitInterval;   //无敌时间
 }
 #endregion
@@ -48,6 +46,41 @@ public abstract class EnemyFSM : MonoBehaviour
     #region Components
     public Parameter Parameter;
     public Core Core { get; private set; }
+
+    public Movement Movement
+    {
+        get
+        {
+            if (m_Movement) { return m_Movement; }      //检查组件是否为空
+            m_Movement = Core.GetCoreComponent<Movement>();
+            return m_Movement;
+        }
+    }
+    private Movement m_Movement;
+
+    public Combat Combat
+    {
+        get
+        {
+            if (m_Combat) { return m_Combat; }
+            m_Combat = Core.GetCoreComponent<Combat>();
+            return m_Combat;
+        }
+    }
+    private Combat m_Combat;
+
+    public Stats Stats
+    {
+        get
+        {
+            if (m_Stats) { return m_Stats; }
+            m_Stats = Core.GetCoreComponent<Stats>();
+            return m_Stats;
+        }
+    }
+    private Stats m_Stats;
+
+
 
     protected Dictionary<StateType, IEnemyState> states = new Dictionary<StateType, IEnemyState>();     //使用字典注册所有状态
 
@@ -86,7 +119,7 @@ public abstract class EnemyFSM : MonoBehaviour
 
     protected virtual void Start()
     {
-        m_LastAttackTime = -Parameter.AttackInterval;
+        m_LastAttackTime = -Parameter.AttackInterval;       //游戏开始时重置上次攻击时间
         CanHit = true;
         
         states.Add(StateType.Idle, new IdleState(this));        //给字典添加所有状态
@@ -143,14 +176,22 @@ public abstract class EnemyFSM : MonoBehaviour
     //受击相关
     protected void DetectHit()
     {
-        if (Core.Combat.IsHit && CanHit)        //只有受击动画的前60%才会移动
+        if (Combat.IsHit && CanHit)        //受到攻击时
         {
             TransitionState(StateType.Hit);
         }
 
+        else if (!CanHit)   //受击状态中
+        {
+            float amount = 0.3f;
+            amount += Time.deltaTime;
+
+            Movement.ReduceVelocity(amount);    //持续减少移动速度
+        }
+
         else
         {
-            Core.Movement.SetVelocityZero();
+            Movement.SetVelocityZero();     //受击结束后使敌人停止移动，也防止玩家碰撞敌人后敌人持续移动
         }
     }
 
