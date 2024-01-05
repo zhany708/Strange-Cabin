@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerIdleState : PlayerGroundedState
 {
-    public PlayerIdleState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName)
+    public PlayerIdleState(Player player, PlayerStateMachine stateMachine, SO_PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName)
     {
 
     }
@@ -14,7 +14,7 @@ public class PlayerIdleState : PlayerGroundedState
     {
         base.Enter();
 
-        core.Movement.SetVelocityZero();       //将玩家速度归零
+        Movement.SetVelocityZero();       //将玩家速度归零
     }
 
     public override void LogicUpdate()

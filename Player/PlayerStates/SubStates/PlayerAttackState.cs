@@ -11,7 +11,7 @@ public class PlayerAttackState : PlayerAbilityState
     float m_VelocityToSet;      //用于攻击期间持续移动玩家（不能只在一帧移动玩家）
     bool m_SetVelocity;         //用于检测何时结束移动玩家
 
-    public PlayerAttackState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName)
+    public PlayerAttackState(Player player, PlayerStateMachine stateMachine, SO_PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName)
     {
     }
 
@@ -41,7 +41,7 @@ public class PlayerAttackState : PlayerAbilityState
 
         if (m_SetVelocity)
         {
-            core.Movement.SetVelocity(m_VelocityToSet, core.Movement.FacingDirection);      //持续调用此函数以持续移动玩家
+            Movement.SetVelocity(m_VelocityToSet, Movement.FacingDirection);      //持续调用此函数以持续移动玩家
         }
     }
 
