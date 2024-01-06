@@ -36,7 +36,7 @@ public class Player : MonoBehaviour
         StateMachine = new PlayerStateMachine();
 
         //初始化各状态
-        IdleState = new PlayerIdleState(this, StateMachine, m_PlayerData, "Idle");      
+        IdleState = new PlayerIdleState(this, StateMachine, m_PlayerData, "Idle");
         MoveState = new PlayerMoveState(this, StateMachine, m_PlayerData, "Move");
         HitState = new PlayerHitState(this, StateMachine, m_PlayerData, "Hit");
         PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack");
@@ -49,6 +49,7 @@ public class Player : MonoBehaviour
         Inventory = GetComponent<PlayerInventory>();
 
         PrimaryAttackState.SetWeapon(Inventory.weapon[(int)CombatInputs.primary]);      //初始化主武器
+        //SecondaryAttackState.SetWeapon(Inventory.weapon[(int)CombatInputs.primary]);      //不能同时初始化相同的索引
 
         StateMachine.Initialize(IdleState);     //初始化状态为闲置
     }

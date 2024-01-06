@@ -36,7 +36,7 @@ public class PlayerState
     protected SO_PlayerData playerData;
 
     //protected float startTime;    //用于检查每个状态的持续时间
-    //protected bool isAnimationFinished = false;     //用于检查动画是否播放完毕
+    protected bool isAnimationFinished = false;     //用于检查动画是否播放完毕
     protected bool isAttack = false;
     protected bool isHit = false;
 
@@ -77,5 +77,5 @@ public class PlayerState
 
     public virtual void PhysicsUpdate() { }
     
-    public virtual void AnimationFinishTrigger() { }
+    public virtual void AnimationFinishTrigger() => isAnimationFinished = true; 
 }

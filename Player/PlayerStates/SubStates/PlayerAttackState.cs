@@ -26,9 +26,9 @@ public class PlayerAttackState : PlayerAbilityState
         m_Weapon.EnterWeapon();
     }
 
-    public override void Exit() 
-    { 
-         base.Exit();
+    public override void Exit()
+    {
+        base.Exit();
 
         isAttack = false;
 
