@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ZhangYu.Weapons;
 
 
 public class Player : MonoBehaviour
@@ -21,11 +22,11 @@ public class Player : MonoBehaviour
     public Core Core { get; private set; }
 
     public PlayerInputHandler InputHandler { get; private set; }
-    public PlayerInventory Inventory { get; private set; }
     #endregion
 
     #region Other Variable
-
+    Weapon m_PrimaryWeapon;
+    Weapon m_SecondaryWeapon;
     #endregion
 
     #region Unity Callback Functions
@@ -33,22 +34,22 @@ public class Player : MonoBehaviour
     {
         Core = GetComponentInChildren<Core>();      //从子物体那调用Core脚本
 
+        m_PrimaryWeapon = transform.Find("PrimaryWeapon").GetComponent<Weapon>();
+        m_SecondaryWeapon = transform.Find("SecondaryWeapon").GetComponent<Weapon>();
+
         StateMachine = new PlayerStateMachine();
 
         //初始化各状态
         IdleState = new PlayerIdleState(this, StateMachine, m_PlayerData, "Idle");      
         MoveState = new PlayerMoveState(this, StateMachine, m_PlayerData, "Move");
         HitState = new PlayerHitState(this, StateMachine, m_PlayerData, "Hit");
-        PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack");
-        SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack");
+        PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", m_PrimaryWeapon);
+        SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", m_SecondaryWeapon);
     }
 
     private void Start()
     {
         InputHandler = GetComponent<PlayerInputHandler>();
-        Inventory = GetComponent<PlayerInventory>();
-
-        PrimaryAttackState.SetWeapon(Inventory.weapon[(int)CombatInputs.primary]);      //初始化主武器
 
         StateMachine.Initialize(IdleState);     //初始化状态为闲置
     }
@@ -63,6 +64,13 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         StateMachine.currentState.PhysicsUpdate();
+    }
+    #endregion
+
+    #region Other Functions
+    private void DestroyPlayer()    //用于动画帧事件
+    {
+        Destroy(gameObject);
     }
     #endregion
 }

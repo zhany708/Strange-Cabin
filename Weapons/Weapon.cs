@@ -1,105 +1,104 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ZhangYu.Utilities;
 
-
-
-public class Weapon : MonoBehaviour
+namespace ZhangYu.Weapons
 {
-    [SerializeField] protected SO_WeaponData weaponData;      //引用武器数值
-
-    protected Animator baseAnimator;
-    protected Animator weaponAnimator;
-
-    protected PlayerAttackState state;
-    protected Core core;
-
-    protected Movement Movement
+    public class Weapon : MonoBehaviour
     {
-        get
+        [SerializeField] int m_NumberOfAttack;
+        [SerializeField] float m_AttackCounterResetCooldown;    //恢复连击的间隔
+
+        public int CurrentAttackCounter
         {
-            if (m_Movement) { return m_Movement; }      //检查组件是否为空
-            m_Movement = core.GetCoreComponent<Movement>();
-            return m_Movement;
+            get => m_CurrentAttackCounter;
+            private set => m_CurrentAttackCounter = value >= m_NumberOfAttack ? 0 : value;      //使连击记录永远不会达到最大连击数
+
         }
-    }
-    private Movement m_Movement;
+
+        public event Action OnEnter;
+        public event Action OnExit;
+
+        public GameObject BaseGameObject {  get; private set; }
+        public GameObject WeaponSpriteGameObject { get; private set; }
+
+        protected Core core;
+
+        protected Movement Movement => m_Movement ? m_Movement : core.GetCoreComponent(ref m_Movement);
+        private Movement m_Movement;
 
 
-    protected int attackCounter = 0;        //表示武器的连击次数
+        Animator m_Animator;
+
+        AnimationEventHandler m_AnimationEventHandler;
+        Timer m_AttackCounterResetTimer;        //计时器脚本，用于计时长时间不攻击后恢复连击数
+
+        int m_CurrentAttackCounter;
 
 
-    protected virtual void Awake()
-    {
-        baseAnimator = transform.Find("Base").GetComponent<Animator>();       //通过Find调用子物体上的动画器组件
-        weaponAnimator = transform.Find("Weapon").GetComponent <Animator>();    
+
+
+        private void Awake()
+        {
+            core = GetComponentInParent<Player>().GetComponentInChildren<Core>();   //先调用Player父物体，然后再从父物体中寻找Core子物体
+
+            BaseGameObject = transform.Find("Base").gameObject;
+            WeaponSpriteGameObject = transform.Find("WeaponSprite").gameObject;
+
+            m_Animator = BaseGameObject.GetComponent<Animator>();   //调用Base物体上的动画器
+
+            m_AnimationEventHandler = BaseGameObject.GetComponent<AnimationEventHandler>();
+
+            m_AttackCounterResetTimer = new Timer(m_AttackCounterResetCooldown);    //初始化计时器脚本
+        }
+
+        private void Update()
+        {
+            m_AttackCounterResetTimer.Tick();   //当计时器开始时，持续进行计时
+        }
+
+        private void OnEnable()
+        {
+            m_AnimationEventHandler.OnFinish += Exit;   //将此脚本的Exit函数加进事件
+            m_AttackCounterResetTimer.OnTimerDone += ResetAttackCounter;
+        }
+
+        private void OnDisable()
+        {
+            m_AnimationEventHandler.OnFinish -= Exit;   //物体禁用后从事件中移除函数，防止因为找不到函数所在的脚本而报错
+            m_AttackCounterResetTimer.OnTimerDone -= ResetAttackCounter;
+        }
+
+
+        public void Enter()
+        {
+            print($"{transform.name} enter");
+
+            m_AttackCounterResetTimer.StopTimer();      //武器攻击时停止计时器，防止有很长的武器动画还没播放完就恢复
+
+            //通过Core中的Facing Direction向量确定动画方向,然后设置攻击为True
+            m_Animator.SetFloat("MoveX", Movement.FacingDirection.x);
+            m_Animator.SetFloat("MoveY", Movement.FacingDirection.y);
+
+            m_Animator.SetInteger("AttackCounter", m_CurrentAttackCounter);     //为动画器设置当前连击次数
+            m_Animator.SetBool("Attack", true);
+
+            OnEnter?.Invoke();      //每当开始攻击时调用该组件
+        }
+
+        private void Exit()
+        {
+            m_Animator.SetBool("Attack", false);
+            CurrentAttackCounter++;   //攻击结束后增加连击次数记录
+            m_AttackCounterResetTimer.StartTimer();     //攻击结束后开始计时
+
+            OnExit?.Invoke();   //问号表示先检查是否为空
+        }     
         
-        gameObject.SetActive(false);        //不攻击时隐藏物件
+
+
+        private void ResetAttackCounter() => CurrentAttackCounter = 0;
     }
-
-
-
-    public virtual void EnterWeapon()
-    {
-        gameObject.SetActive(true);     //攻击时显示物件
-
-        if (attackCounter > weaponData.AmountOfAttack - 1)      //根据武器的最大连击次数重置攻击计数
-        {
-            attackCounter = 0;
-        }
-
-
-        //通过Core中的Facing Direction向量确定动画方向,然后设置攻击为True
-        baseAnimator.SetFloat("MoveX", Movement.FacingDirection.x);
-        baseAnimator.SetFloat("MoveY", Movement.FacingDirection.y);
-        weaponAnimator.SetFloat("MoveX", Movement.FacingDirection.x);
-        weaponAnimator.SetFloat("MoveY", Movement.FacingDirection.y);
-
-        baseAnimator.SetBool("Attack", true);
-        weaponAnimator.SetBool("Attack", true);
-
-        baseAnimator.SetInteger("AttackCounter", attackCounter);
-        weaponAnimator.SetInteger("AttackCounter", attackCounter);
-    }
-
-
-    public virtual void ExitWeapon()
-    {
-        baseAnimator.SetBool("Attack", false);
-        weaponAnimator.SetBool("Attack", false);
-
-        attackCounter++;    //增加攻击计数以让玩家进行二连击
-
-        gameObject.SetActive(false);        //攻击结束后再次隐藏物件
-    }
-
-
-
-    public void InitializeWeapon(PlayerAttackState state, Core core)       //引用攻击状态脚本
-    {
-        this.state = state;
-        this.core = core;
-    }
-
-    #region Animation Trigger
-
-    public virtual void AnimationFinishTrigger()
-    {
-        state.AnimationFinishTrigger();
-    }
-
-    public virtual void AnimationStartMovementTrigger()
-    {
-        state.SetPlayerVelocity(weaponData.movementSpeed[attackCounter]);
-    }
-
-    public virtual void AnimationStopMovementTrigger()
-    {
-        state.SetPlayerVelocity(0f);        //结束攻击移动
-    }
-
-    public virtual void AnimationActionTrigger() { }
-
-    #endregion
 }
-
