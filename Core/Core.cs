@@ -42,7 +42,7 @@ public class Core : MonoBehaviour
         var comp = m_CoreComponents.OfType<T>().FirstOrDefault();  //返回第一个找到的值，否则返回基础值（大部分变量类型的基础值为null）
 
         if (comp) { return comp; }
-        comp = GetComponentInChildren<T>();
+        comp = GetComponentInChildren<T>();     //如果找不到，则到子物体中寻找
 
         if (comp) { return comp; }
         
