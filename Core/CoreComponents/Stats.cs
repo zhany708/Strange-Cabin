@@ -1,9 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Stats : CoreComponent      //用于管理生命，魔力等状态信息
 {
+    public event Action OnHealthZero;       //事件类型的变量
+
     public float MaxHealth;
     public float Defense;
 
@@ -31,6 +34,9 @@ public class Stats : CoreComponent      //用于管理生命，魔力等状态信息
         if (m_CurrentHealth <= 0)
         {
             m_CurrentHealth = 0;
+
+            OnHealthZero?.Invoke();     //先检查是否为空，再调用延时函数
+
             Debug.Log("Health is zero!!");
         }
     }
