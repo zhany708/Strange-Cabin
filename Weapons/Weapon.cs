@@ -32,8 +32,8 @@ public class Weapon : MonoBehaviour
     protected virtual void Awake()
     {
         baseAnimator = transform.Find("Base").GetComponent<Animator>();       //通过Find调用子物体上的动画器组件
-        weaponAnimator = transform.Find("Weapon").GetComponent <Animator>();    
-        
+        weaponAnimator = transform.Find("Weapon").GetComponent<Animator>();
+
         gameObject.SetActive(false);        //不攻击时隐藏物件
     }
 
@@ -102,4 +102,3 @@ public class Weapon : MonoBehaviour
 
     #endregion
 }
-
