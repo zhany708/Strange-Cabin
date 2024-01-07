@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ZhangYu.Utilities;
 
 
 
@@ -62,13 +63,16 @@ public class Enemy : MonoBehaviour
         }
     }
     private Combat m_Combat;
+
+    public Timer AttackTimer;
     #endregion
 
     #region Variables
+    public bool CanAttack { get ; private set; }
+
     Vector2 m_LeftDownPosition;     //用于随机生成巡逻坐标
     Vector2 m_RightTopPosition;
 
-    float m_LastAttackTime;     //上次攻击的时间
     float m_LastHitTime;        //上次受击时间
     #endregion
 
@@ -85,6 +89,8 @@ public class Enemy : MonoBehaviour
         ChaseState = new EnemyChaseState(this, StateMachine, enemyData, "Move");
         AttackState = new EnemyAttackState(this, StateMachine, enemyData, "Attack");
         HitState = new EnemyHitState(this, StateMachine, enemyData, "Hit");
+
+        AttackTimer = new Timer(enemyData.AttackInterval);      //用攻击间隔初始化计时器
 
         m_LeftDownPosition = Parameter.PatrolPoints[0].transform.position;      //在脚本中储存巡逻点
         m_RightTopPosition = Parameter.PatrolPoints[1].transform.position;
@@ -103,21 +109,33 @@ public class Enemy : MonoBehaviour
 
     protected virtual void Start()
     {
-        m_LastAttackTime = -enemyData.AttackInterval;       //游戏开始时重置上次攻击时间
-
         StateMachine.Initialize(IdleState);     //初始化状态为闲置
+
+        CanAttack = true;   //游戏开始时将可攻击设置为true
     }
 
     private void Update()
     {
         //Core.LogicUpdate();     //获取当前速度
 
-        StateMachine.currentState.LogicUpdate();
+        StateMachine.CurrentState.LogicUpdate();
+
+        AttackTimer.Tick();
     }
 
     private void FixedUpdate()
     {
-        StateMachine.currentState.PhysicsUpdate();
+        StateMachine.CurrentState.PhysicsUpdate();
+    }
+
+    private void OnEnable()
+    {
+        AttackTimer.OnTimerDone += SetCanAttackTrue;        //触发事件（计时器到达目标时间）时将可攻击布尔设置为true
+    }
+
+    private void OnDisable()
+    {
+        AttackTimer.OnTimerDone -= SetCanAttackTrue;
     }
     #endregion
 
@@ -132,10 +150,15 @@ public class Enemy : MonoBehaviour
 
         return Parameter.Target.position.x < minX || Parameter.Target.position.x > maxX || Parameter.Target.position.y < minY || Parameter.Target.position.y > maxY;
     }
+
+    private void SetCanAttackTrue()
+    {
+        CanAttack = true;
+    }
     #endregion
 
-    #region Hit Functions
-    public void DestroyEnemyAfterDeath()      //用于动画事件，摧毁物体
+    #region Animation Event Functions
+    private void DestroyEnemyAfterDeath()      //用于动画事件，摧毁物体
     {
         if (transform.parent != null)
         {
@@ -181,11 +204,6 @@ public class Enemy : MonoBehaviour
 
     #region Getters
     //获取成员变量
-    public float GetLastAttackTime()
-    {
-        return m_LastAttackTime;
-    }
-
     public float GetLastHitTime()
     {
         return m_LastHitTime;
@@ -204,9 +222,9 @@ public class Enemy : MonoBehaviour
 
     #region Setters
     //设置成员变量
-    public void SetLastAttackTime(float currentTime)
+    public void SetCanAttackFalse()
     {
-        m_LastAttackTime = currentTime;
+        CanAttack = false;
     }
 
     public void SetLastHitTime(float currentTime)
