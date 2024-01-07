@@ -25,7 +25,8 @@ public class Player : MonoBehaviour
     #endregion
 
     #region Other Variable
-
+    Weapon m_PrimaryWeapon;
+    Weapon m_SecondaryWeapon;
     #endregion
 
     #region Unity Callback Functions
@@ -33,14 +34,17 @@ public class Player : MonoBehaviour
     {
         Core = GetComponentInChildren<Core>();      //从子物体那调用Core脚本
 
+        m_PrimaryWeapon = transform.Find("PrimaryWeapon").GetComponent<Weapon>();
+        m_SecondaryWeapon = transform.Find("SecondaryWeapon").GetComponent<Weapon>();
+
         StateMachine = new PlayerStateMachine();
 
         //初始化各状态
         IdleState = new PlayerIdleState(this, StateMachine, m_PlayerData, "Idle");
         MoveState = new PlayerMoveState(this, StateMachine, m_PlayerData, "Move");
         HitState = new PlayerHitState(this, StateMachine, m_PlayerData, "Hit");
-        PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack");
-        SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack");
+        PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", m_PrimaryWeapon);
+        SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", m_SecondaryWeapon);
     }
 
     private void Start()
@@ -48,7 +52,7 @@ public class Player : MonoBehaviour
         InputHandler = GetComponent<PlayerInputHandler>();
         Inventory = GetComponent<PlayerInventory>();
 
-        PrimaryAttackState.SetWeapon(Inventory.weapon[(int)CombatInputs.primary]);      //初始化主武器
+        //PrimaryAttackState.SetWeapon(Inventory.weapon[(int)CombatInputs.primary]);      //初始化主武器
         //SecondaryAttackState.SetWeapon(Inventory.weapon[(int)CombatInputs.primary]);      //不能同时初始化相同的索引
 
         StateMachine.Initialize(IdleState);     //初始化状态为闲置
@@ -64,6 +68,13 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         StateMachine.currentState.PhysicsUpdate();
+    }
+    #endregion
+
+    #region Animation Event Functions
+    private void DestroyPlayerAfterDeath()      //用于动画事件，摧毁物体
+    {
+        Destroy(gameObject);   
     }
     #endregion
 }
