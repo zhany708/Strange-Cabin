@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Enemy
+  - Furniture
+  - Wall
+  - PatrolPoint
+  - HealthBar
+  - ParticleContainer
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - Wall
+  - Water
+  - UI
+  - Furniture
+  - CameraConfiner
+  - Enemy
+  - EnemyFoot
+  - EnemyBullets
+  - PlayerBody
+  - PlayerFoot
+  - Weapon
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Floor
+    uniqueID: 1664537087
+    locked: 0
+  - name: Carpet
+    uniqueID: 3313589157
+    locked: 0
+  - name: Wall
+    uniqueID: 1358590395
+    locked: 0
+  - name: Furniture
+    uniqueID: 2702118789
+    locked: 0
+  - name: Door
+    uniqueID: 3469053007
+    locked: 0
+  - name: MonsterOrPlayer
+    uniqueID: 3513858459
+    locked: 0
+  - name: Bullet
+    uniqueID: 3795354241
+    locked: 0
