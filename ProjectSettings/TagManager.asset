@@ -24,8 +24,8 @@ TagManager:
   - EnemyBullets
   - PlayerBody
   - PlayerFoot
-  - Weapon
-  - 
+  - MeleeWeapon
+  - PlayerBullets
   - 
   - 
   - 
