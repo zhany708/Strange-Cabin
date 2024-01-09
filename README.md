@@ -4,4 +4,10 @@ Description: A 2D adventure and Roguelike game with pixel art. Inspired by "Betr
 
 Engine: Unity
 
-Game development participants: Zhang Yu(Steven), Yang Jianming(Jimmy), Guo Baiting, and a lot more authors for art materials.
+Game development participants: 
+
+Programmer: Zhang Yu(Steven)
+
+Game Designer: Zhang Yu, Guo Baiting
+
+Art Designer: Zhang Yu, Yang Jianming(Jimmy), and a lot more authors
