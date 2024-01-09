@@ -8,13 +8,13 @@ using ZhangYu.Utilities;
 
 public class Weapon : MonoBehaviour
 {
-    public event Action OnExit;      //接受事件方为PlayerAttackState
+    public event Action OnExit;      //接受事件方为PlayerAttackState脚本
 
-    //[SerializeField] private SO_WeaponData weaponData;      //引用武器数值
     [SerializeField] private float m_AttackCounterResetCooldown;
 
 
     public SO_WeaponData WeaponData;
+
 
     public int CurrentAttackCounter
     {
@@ -24,18 +24,20 @@ public class Weapon : MonoBehaviour
     private int m_CurrentAttackCounter;        //表示武器的连击次数
 
 
+
+
     protected GameObject baseGameObject;
+    protected GameObject weaponGameObject;
     protected Animator baseAnimator;
     protected Animator weaponAnimator;
 
-    //protected PlayerAttackState state;
     protected Core core;
+    protected AnimationEventHandler baseAnimationEventHandler { get; private set; }
+    protected WeaponHitboxToWeapon weaponAnimationEventHandler { get; private set; }
 
-    protected Movement Movement => m_Movement ? m_Movement : core.GetCoreComponent(ref m_Movement);
+    protected Movement Movement => m_Movement ? m_Movement : core.GetCoreComponent(ref m_Movement);   //检查m_Movement是否为空，不是的话则返回它，是的话则调用GetCoreComponent函数以获取组件
     private Movement m_Movement;
 
-
-    AnimationEventHandler m_EventHandler;
 
     Timer m_AttackCounterResetTimer;
 
@@ -46,13 +48,13 @@ public class Weapon : MonoBehaviour
 
         baseGameObject = transform.Find("Base").gameObject;
         baseAnimator = baseGameObject.GetComponent<Animator>();      //通过Find调用子物体上的动画器组件
+        baseAnimationEventHandler = baseGameObject.GetComponent<AnimationEventHandler>();
 
-        weaponAnimator = transform.Find("Weapon").GetComponent<Animator>();
-        m_EventHandler = baseGameObject.GetComponent<AnimationEventHandler>();
+        weaponGameObject = transform.Find("Weapon").gameObject;
+        weaponAnimator = weaponGameObject.GetComponent<Animator>();
+        weaponAnimationEventHandler = weaponGameObject.GetComponent<WeaponHitboxToWeapon>();
 
         m_AttackCounterResetTimer = new Timer(m_AttackCounterResetCooldown);
-
-        //gameObject.SetActive(false);        //攻击时显示物件
     }
 
     private void Update()
@@ -60,16 +62,16 @@ public class Weapon : MonoBehaviour
         m_AttackCounterResetTimer.Tick();   //持续对计时器进行计时
     }
 
-    private void OnEnable()
+    protected virtual void OnEnable()
     {
-        m_EventHandler.OnFinish += ExitWeapon;
+        baseAnimationEventHandler.OnFinish += ExitWeapon;
 
         m_AttackCounterResetTimer.OnTimerDone += ResetAttackCounter;    //触发事件（计时器到达目标时间）时重置连击
     }
 
-    private void OnDisable()
+    protected virtual void OnDisable()
     {
-        m_EventHandler.OnFinish -= ExitWeapon;
+        baseAnimationEventHandler.OnFinish -= ExitWeapon;
 
         m_AttackCounterResetTimer.OnTimerDone -= ResetAttackCounter;  
     }
@@ -78,8 +80,6 @@ public class Weapon : MonoBehaviour
 
     public virtual void EnterWeapon()
     {
-        gameObject.SetActive(true);     //攻击时显示物件
-
         m_AttackCounterResetTimer.StopTimer();      //攻击状态中暂停计时器，防止攻击动画还没结束就重置连击
 
         //通过Core中的Facing Direction向量确定动画方向,然后设置攻击为True
@@ -104,43 +104,10 @@ public class Weapon : MonoBehaviour
         CurrentAttackCounter++;    //增加攻击计数以让玩家进行二连击
         m_AttackCounterResetTimer.StartTimer();      //攻击结束后开始计时器
 
-        //gameObject.SetActive(false);        //攻击结束后再次隐藏物件
-
         OnExit?.Invoke();
     }
 
 
 
     private void ResetAttackCounter() => CurrentAttackCounter = 0;     //重置连击数
-
-    /*
-    public void InitializeWeapon(PlayerAttackState state, Core core)       //引用攻击状态脚本
-    {
-        this.state = state;
-        this.core = core;
-    
-    */
-
-    /*
-    #region Animation Trigger
-
-    public virtual void AnimationFinishTrigger()
-    {
-        state.AnimationFinishTrigger();
-    }
-
-    public virtual void AnimationStartMovementTrigger()
-    {
-        state.SetPlayerVelocity(weaponData.movementSpeed[CurrentAttackCounter]);
-    }
-
-    public virtual void AnimationStopMovementTrigger()
-    {
-        state.SetPlayerVelocity(0f);        //结束攻击移动
-    }
-
-    public virtual void AnimationActionTrigger() { }
-
-    #endregion
-    */
 }

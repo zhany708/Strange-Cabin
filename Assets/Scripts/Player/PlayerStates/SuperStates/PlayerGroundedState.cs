@@ -25,11 +25,11 @@ public class PlayerGroundedState : PlayerState
             stateMachine.ChangeState(player.PrimaryAttackState);
         }
 
-        /*
+
         else if (player.InputHandler.AttackInputs[(int)CombatInputs.secondary])     //按下鼠标右键时，过渡到副武器攻击状态
         {
-            
+
             stateMachine.ChangeState(player.SecondaryAttackState);
-        }  
-        */    }
+        }
+    }      
 }

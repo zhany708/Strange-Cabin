@@ -28,14 +28,25 @@ public class AggressiveWeapon : Weapon
         cameraShake = FindObjectOfType<CameraShake>();    //找拥有CameraShake脚本的组件
     }
 
-    /*
-    public override void AnimationActionTrigger()
+    protected override void OnEnable()
     {
-        base.AnimationActionTrigger();
+        base.OnEnable();
 
-        CheckMeleeAttack();
+        baseAnimationEventHandler.OnStart += CheckMeleeAttack;      //将攻击函数添加进动画开始的事件
+        weaponAnimationEventHandler.OnStartMovement += HandleStartMovement;     //将开始移动函数添加进开始移动的事件
+        weaponAnimationEventHandler.OnStopMovement += HandleStopMovement;       //将停止移动添加进结束移动的事件
     }
-    */
+
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+
+        baseAnimationEventHandler.OnStart -= CheckMeleeAttack;
+        weaponAnimationEventHandler.OnStartMovement -= HandleStartMovement;
+        weaponAnimationEventHandler.OnStopMovement -= HandleStopMovement;
+    }
+
+
 
     public void CheckMeleeAttack()     //攻击到敌人时调用此函数
     {
@@ -87,5 +98,17 @@ public class AggressiveWeapon : Weapon
         {
             m_DetectedKnockbackables.Remove(knockbackable);    //如果检测到可被击退的碰撞体，则加进List
         }
+    }
+
+
+
+    public void HandleStartMovement()
+    {
+        Movement.SetVelocity(aggressiveWeaponData.MovementSpeed[CurrentAttackCounter], Movement.FacingDirection);       //使玩家攻击时获得移动补偿
+    }
+
+    public void HandleStopMovement()
+    {
+        Movement.SetVelocityZero();
     }
 }

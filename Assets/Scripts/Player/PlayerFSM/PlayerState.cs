@@ -68,7 +68,7 @@ public class PlayerState
 
     public virtual void LogicUpdate() 
     { 
-        if (Combat.IsHit && !isHit)
+        if (Combat.IsHit && !isHit && !isAttack)
         {
             stateMachine.ChangeState(player.HitState);
         }

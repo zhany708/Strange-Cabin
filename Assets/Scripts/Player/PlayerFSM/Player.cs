@@ -19,7 +19,6 @@ public class Player : MonoBehaviour
 
     #region Components
     public Core Core { get; private set; }
-
     public PlayerInputHandler InputHandler { get; private set; }
     public PlayerInventory Inventory { get; private set; }
     #endregion
@@ -34,8 +33,8 @@ public class Player : MonoBehaviour
     {
         Core = GetComponentInChildren<Core>();      //从子物体那调用Core脚本
 
-        m_PrimaryWeapon = transform.Find("PrimaryWeapon").GetComponent<Weapon>();
-        m_SecondaryWeapon = transform.Find("SecondaryWeapon").GetComponent<Weapon>();
+        m_PrimaryWeapon = transform.Find("PrimaryWeapon").GetComponentInChildren<Weapon>();
+        m_SecondaryWeapon = transform.Find("SecondaryWeapon").GetComponentInChildren<Weapon>();
 
         StateMachine = new PlayerStateMachine();
 
@@ -51,9 +50,6 @@ public class Player : MonoBehaviour
     {
         InputHandler = GetComponent<PlayerInputHandler>();
         Inventory = GetComponent<PlayerInventory>();
-
-        //PrimaryAttackState.SetWeapon(Inventory.weapon[(int)CombatInputs.primary]);      //初始化主武器
-        //SecondaryAttackState.SetWeapon(Inventory.weapon[(int)CombatInputs.primary]);      //不能同时初始化相同的索引
 
         StateMachine.Initialize(IdleState);     //初始化状态为闲置
     }
