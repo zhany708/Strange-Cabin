@@ -34,14 +34,14 @@ public class Player : MonoBehaviour
     #region Unity Callback Functions
     private void Awake()
     {
-        Core = GetComponentInChildren<Core>();      //´Ó×ÓÎïÌåÄÇµ÷ÓÃCore½Å±¾
+        Core = GetComponentInChildren<Core>();      //ä»å­ç‰©ä½“é‚£è°ƒç”¨Coreè„šæœ¬
 
         m_PrimaryWeapon = transform.Find("PrimaryWeapon").GetComponentInChildren<Weapon>();
         m_SecondaryWeapon = transform.Find("SecondaryWeapon").GetComponentInChildren<Weapon>();
 
         StateMachine = new PlayerStateMachine();
 
-        //³õÊ¼»¯¸÷×´Ì¬
+        //åˆå§‹åŒ–å„çŠ¶æ€
         IdleState = new PlayerIdleState(this, StateMachine, m_PlayerData, "Idle");
         MoveState = new PlayerMoveState(this, StateMachine, m_PlayerData, "Move");
         HitState = new PlayerHitState(this, StateMachine, m_PlayerData, "Hit");
@@ -56,12 +56,12 @@ public class Player : MonoBehaviour
 
         CheckWeaponNum();
 
-        StateMachine.Initialize(IdleState);     //³õÊ¼»¯×´Ì¬ÎªÏĞÖÃ
+        StateMachine.Initialize(IdleState);     //åˆå§‹åŒ–çŠ¶æ€ä¸ºé—²ç½®
     }
 
     private void Update()
     {
-        //Core.LogicUpdate();     //»ñÈ¡µ±Ç°ËÙ¶È
+        //Core.LogicUpdate();     //è·å–å½“å‰é€Ÿåº¦
 
         StateMachine.currentState.LogicUpdate();
     }
@@ -76,7 +76,7 @@ public class Player : MonoBehaviour
     public void GenerateNewAttackState(Weapon weapon)
     {
         /*
-        if (Inventory.weaponCount == 0)      //¸ù¾İÎäÆ÷¼ÆÊı¸ü¸Ä½ÇÉ«¹¥»÷×´Ì¬ÖĞµÄÎäÆ÷±äÁ¿
+        if (Inventory.weaponCount == 0)      //æ ¹æ®æ­¦å™¨è®¡æ•°æ›´æ”¹è§’è‰²æ”»å‡»çŠ¶æ€ä¸­çš„æ­¦å™¨å˜é‡
         {
             PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", weapon);
 
@@ -94,28 +94,25 @@ public class Player : MonoBehaviour
         Inventory.PrimaryWeapon[m_CurrentPrimaryWeaponNum].SetActive(false);
         Inventory.SecondaryWeapon[m_CurrentSecondaryWeaponNum].SetActive(false);
 
-        //ĞèÒªÊµÏÖ£º½«ĞèÒª¸ü»»µÄÎäÆ÷Í¨¹ıSetActive¼¤»î£¬²¢¸ù¾İÖ÷/¸±Éú³ÉĞÂµÄ¹¥»÷×´Ì¬
+        //éœ€è¦å®ç°ï¼šå°†éœ€è¦æ›´æ¢çš„æ­¦å™¨é€šè¿‡SetActiveæ¿€æ´»ï¼Œå¹¶æ ¹æ®ä¸»/å‰¯ç”Ÿæˆæ–°çš„æ”»å‡»çŠ¶æ€
     }
 
 
-    private void CheckWeaponNum()       //È·¶¨µ±Ç°ÎäÆ÷ÔÚ¿â´æÖĞµÄË÷Òı
+    private int CheckNum(Weapon weapon)    //ä¸»æ­¦å™¨å’Œå‰¯æ­¦å™¨çš„é¡ºåºä¸€æ ·ï¼Œæ‰€ä»¥æ— éœ€åŒºåˆ†è®¡æ•°
     {
+        int WeaponNum;
         for (int i = 0; i < Inventory.PrimaryWeapon.Length; i++)       
         {
-            if (m_PrimaryWeapon.ToString() == Inventory.PrimaryWeapon[i].ToString())
+            if (weapon.ToString() == Inventory.PrimaryWeapon[i].ToString())
             {
-                m_CurrentPrimaryWeaponNum = i;
-            }
-            else if (m_SecondaryWeapon.ToString() == Inventory.PrimaryWeapon[i].ToString())
-            {
-                m_CurrentSecondaryWeaponNum = i;
+                WeaponNum = i;
             }
         }
     }
     #endregion
 
     #region Animation Event Functions
-    private void DestroyPlayerAfterDeath()      //ÓÃÓÚ¶¯»­ÊÂ¼ş£¬´İ»ÙÎïÌå
+    private void DestroyPlayerAfterDeath()      //ç”¨äºåŠ¨ç”»äº‹ä»¶ï¼Œæ‘§æ¯ç‰©ä½“
     {
         Destroy(gameObject);   
     }
