@@ -37,4 +37,14 @@ public class PlayerAttackState : PlayerAbilityState
         isAttack = false;
         isAbilityDone = true;
     }
+
+    /*
+    public void ChangeWeapon(Weapon weapon)
+    {
+        if (m_Weapon != null)
+        {
+            m_Weapon = weapon;
+        }
+    }
+    */
 }

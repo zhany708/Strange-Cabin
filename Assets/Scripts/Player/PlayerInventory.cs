@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class PlayerInventory : MonoBehaviour        //用于调用武器
+public class PlayerInventory : MonoBehaviour        //用于储存武器
 {
-    public Weapon[] weapon;
+    public GameObject[] PrimaryWeapon;
+    public GameObject[] SecondaryWeapon;
 }
 

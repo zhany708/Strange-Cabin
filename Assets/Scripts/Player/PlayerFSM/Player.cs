@@ -26,6 +26,9 @@ public class Player : MonoBehaviour
     #region Other Variable
     Weapon m_PrimaryWeapon;
     Weapon m_SecondaryWeapon;
+
+    int m_CurrentPrimaryWeaponNum;
+    int m_CurrentSecondaryWeaponNum;
     #endregion
 
     #region Unity Callback Functions
@@ -51,6 +54,8 @@ public class Player : MonoBehaviour
         InputHandler = GetComponent<PlayerInputHandler>();
         Inventory = GetComponent<PlayerInventory>();
 
+        CheckWeaponNum();
+
         StateMachine.Initialize(IdleState);     //初始化状态为闲置
     }
 
@@ -64,6 +69,48 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         StateMachine.currentState.PhysicsUpdate();
+    }
+    #endregion
+
+    #region Other Functions
+    public void GenerateNewAttackState(Weapon weapon)
+    {
+        /*
+        if (Inventory.weaponCount == 0)      //根据武器计数更改角色攻击状态中的武器变量
+        {
+            PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", weapon);
+
+            Debug.Log("You have new Primary Attack State!");
+        }
+        else
+        {
+            SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", weapon);
+        }
+        */
+    }
+
+    public void ChangeWeapon(GameObject weapon)
+    {
+        Inventory.PrimaryWeapon[m_CurrentPrimaryWeaponNum].SetActive(false);
+        Inventory.SecondaryWeapon[m_CurrentSecondaryWeaponNum].SetActive(false);
+
+        //需要实现：将需要更换的武器通过SetActive激活，并根据主/副生成新的攻击状态
+    }
+
+
+    private void CheckWeaponNum()       //确定当前武器在库存中的索引
+    {
+        for (int i = 0; i < Inventory.PrimaryWeapon.Length; i++)       
+        {
+            if (m_PrimaryWeapon.ToString() == Inventory.PrimaryWeapon[i].ToString())
+            {
+                m_CurrentPrimaryWeaponNum = i;
+            }
+            else if (m_SecondaryWeapon.ToString() == Inventory.PrimaryWeapon[i].ToString())
+            {
+                m_CurrentSecondaryWeaponNum = i;
+            }
+        }
     }
     #endregion
 
