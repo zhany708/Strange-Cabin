@@ -12,7 +12,7 @@ public class EnemyAttackState : EnemyState
     {
         base.Enter();
 
-        enemy.SetLastAttackTime(Time.time);     //设置当前时间为上次攻击时间
+        enemy.AttackTimer.StopTimer();     //攻击期间停止计时
     }
 
     public override void LogicUpdate()
@@ -25,5 +25,13 @@ public class EnemyAttackState : EnemyState
         {
             stateMachine.ChangeState(enemy.ChaseState);
         }
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+
+        enemy.SetCanAttackFalse();
+        enemy.AttackTimer.StartTimer();     //攻击结束后开始计时
     }
 }

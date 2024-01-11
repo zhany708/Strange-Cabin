@@ -10,11 +10,11 @@ public class WeaponHitboxToWeapon : MonoBehaviour       //用于将AggressiveWeapon
     public event Action OnStopMovement;   //接收方为AggressiveWeapon脚本
 
 
-    AggressiveWeapon m_Weapon;
+    MeleeWeapon m_Weapon;
 
     private void Awake()
     {
-        m_Weapon = GetComponentInParent<AggressiveWeapon>();
+        m_Weapon = GetComponentInParent<MeleeWeapon>();
     }
 
 
