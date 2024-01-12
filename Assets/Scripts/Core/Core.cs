@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
@@ -6,6 +5,8 @@ using System.Linq;
 public class Core : MonoBehaviour
 {
     public Animator Animator { get; private set; }
+
+    public AnimatorStateInfo AnimatorInfo { get; private set; }
     
    
 
@@ -19,14 +20,16 @@ public class Core : MonoBehaviour
 
     public void LogicUpdate()
     {
-        /*
+        
         foreach (CoreComponent component in m_CoreComponents)
         {
             component.LogicUpdate();    //运行每个组建的LogicUpdate函数
         }
-        */
+        
+        AnimatorInfo = Animator.GetCurrentAnimatorStateInfo(0);
     }
 
+    
     public void Addcomponent(CoreComponent component)
     {
         if (!m_CoreComponents.Contains(component))
@@ -34,7 +37,7 @@ public class Core : MonoBehaviour
             m_CoreComponents.Add(component);     //如果组件不在List，则加进去
         }
     }
-
+    
 
 
     public T GetCoreComponent<T>() where T : CoreComponent      //T代表这是Generic函数

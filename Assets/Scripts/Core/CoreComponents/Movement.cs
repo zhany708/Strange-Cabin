@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Xml.Serialization;
 using UnityEngine;
 
 public class Movement : CoreComponent   //用于管理移动
@@ -43,6 +39,15 @@ public class Movement : CoreComponent   //用于管理移动
         
         SetFinalVelocity();
     }
+
+    /*
+    public void SetVelocity(float velocity)
+    {
+        m_WorkSpace *= velocity;
+
+        SetFinalVelocity();
+    }
+    */
 
     public void SetFinalVelocity()
     {

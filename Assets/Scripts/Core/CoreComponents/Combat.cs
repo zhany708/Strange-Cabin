@@ -1,17 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
 
 public class Combat : CoreComponent, Idamageable, IKnockbackable    //用于管理受击
 {
+    [SerializeField] GameObject m_DamageParticles;
+
     public bool IsHit {  get; private set; }
     public float HitResistance;     //击退抗性
 
-    [SerializeField] GameObject m_DamageParticles;
 
-    ParticleManager m_ParticleManager => m_particleManager ? m_particleManager : core.GetCoreComponent(ref m_particleManager);      //问号表示如果问号左边变量为空，则返还冒号右边的函数，否则返还冒号左边的变量
 
-    ParticleManager m_particleManager;
 
     //public override void LogicUpdate() { }
 
@@ -22,7 +20,7 @@ public class Combat : CoreComponent, Idamageable, IKnockbackable    //用于管理受
         //Debug.Log(core.transform.parent.name + " Damaged!");
         Stats.DecreaseHealth(amount);
 
-        m_ParticleManager.StartParticleWithRandomRotation(m_DamageParticles);   //造成伤害时生成特效
+        particleManager.StartParticleWithRandomRotation(m_DamageParticles);   //造成伤害时生成特效
     }
 
     public void GetHit(Vector2 direction)

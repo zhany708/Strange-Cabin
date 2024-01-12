@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
 
 public class CoreComponent : MonoBehaviour
 {
@@ -17,6 +16,7 @@ public class CoreComponent : MonoBehaviour
     }
     private Movement m_Movement;
 
+
     protected Stats Stats
     {
         get
@@ -29,6 +29,10 @@ public class CoreComponent : MonoBehaviour
     private Stats m_Stats;
 
 
+    protected ParticleManager particleManager => m_ParticleManager ? m_ParticleManager : core.GetCoreComponent(ref m_ParticleManager);      //问号表示如果问号左边变量为空，则返还冒号右边的函数，否则返还冒号左边的变量
+
+    private ParticleManager m_ParticleManager;
+
 
 
     protected virtual void Awake()
@@ -40,6 +44,18 @@ public class CoreComponent : MonoBehaviour
             Debug.LogError("There is no Core on the parent");
         }
 
-        //core.Addcomponent(this);    //将所有需要运用LogicUpdate函数的组件加进List
+        core.Addcomponent(this);    //将所有需要运用LogicUpdate函数的组件加进List
     }
+
+    
+    protected virtual void Update()
+    {
+        core.LogicUpdate();
+    }
+    
+
+
+
+
+    public virtual void LogicUpdate() {  }  
 }
