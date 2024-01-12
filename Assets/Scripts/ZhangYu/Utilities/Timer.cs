@@ -5,7 +5,7 @@ namespace ZhangYu.Utilities     //张煜文件夹用于以后所有游戏都可能会用到的函数，
 {
     public class Timer
     {
-        public event Action OnTimerDone;
+        public event Action OnTimerDone;    //接收对象有Weapon, EnemyFSM
 
         float m_StartTime;
         float m_Duration;
@@ -15,7 +15,7 @@ namespace ZhangYu.Utilities     //张煜文件夹用于以后所有游戏都可能会用到的函数，
 
         public Timer(float duration)
         {
-            this.m_Duration = duration;
+            m_Duration = duration;
         }
 
 
@@ -41,6 +41,8 @@ namespace ZhangYu.Utilities     //张煜文件夹用于以后所有游戏都可能会用到的函数，
 
             if (Time.time > m_TargetTime)
             {
+                //Debug.Log("Time up!");
+
                 OnTimerDone?.Invoke();
                 StopTimer();    //到达目标时间后停止计时
             }

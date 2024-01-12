@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
 
 public class WeaponPickUp : MonoBehaviour
 {
@@ -17,7 +16,7 @@ public class WeaponPickUp : MonoBehaviour
             //需要实现：通过一种方式决定更换主武器还是副武器
 
 
-            Debug.Log("You got new weapon!");
+            //Debug.Log("You got new weapon!");
 
             Destroy(gameObject);    //角色捡起后销毁武器
         }

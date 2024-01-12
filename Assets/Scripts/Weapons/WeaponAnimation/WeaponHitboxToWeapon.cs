@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Burst.CompilerServices;
 using UnityEngine;
+
 
 public class WeaponHitboxToWeapon : MonoBehaviour       //用于将AggressiveWeapon脚本中的物理检测函数转交给Weapon脚本，同时负责不同武器的攻击动画效果
 {

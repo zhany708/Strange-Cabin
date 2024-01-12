@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
 
 [CreateAssetMenu(fileName = "newAggressiveWeaponData", menuName = "Data/Weapon Data/AggressiveWeapon")]
 
@@ -16,11 +15,11 @@ public class SO_AggressiveWeaponData : SO_WeaponData
     {
         AmountOfAttack = attackDetails.Length;      //传递武器的攻击次数
 
-        movementSpeed = new float[AmountOfAttack];
+        MovementSpeed = new float[AmountOfAttack];
 
         for (int i = 0; i < AmountOfAttack; i++)
         {
-            movementSpeed[i] = attackDetails[i].MovementSpeed;      //将攻击性武器数据中的移动补偿速度传递给武器数据中的移动补偿速度
+            MovementSpeed[i] = attackDetails[i].MovementSpeed;      //将攻击性武器数据中的移动补偿速度传递给武器数据中的移动补偿速度
         }
     }
 }
@@ -38,4 +37,7 @@ public struct WeaponAttackDetails
     public float DamageAmount;
 
     public float KnockbackStrength;
+
+    public float CameraShakeIntensity;
+    public float CameraShakeDuration;
 }
