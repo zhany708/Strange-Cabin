@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 using ZhangYu.Utilities;
 
 
@@ -34,6 +31,7 @@ public class Enemy : MonoBehaviour
     public EnemyChaseState ChaseState { get; private set; }
     public EnemyAttackState AttackState { get; protected set; }
     public EnemyHitState HitState { get; private set; }
+    public EnemyDeathState DeathState { get; protected set;}
 
     [SerializeField]
     protected SO_EnemyData enemyData;
@@ -62,13 +60,11 @@ public class Enemy : MonoBehaviour
 
 
     public Timer AttackTimer;
+    public RandomPosition PatrolRandomPos;
     #endregion
 
     #region Variables
-    public bool CanAttack { get ; private set; }
-
-    Vector2 m_LeftDownPosition;     //用于随机生成巡逻坐标
-    Vector2 m_RightTopPosition;
+    public bool CanAttack { get ; private set; }        //用于攻击间隔
 
     float m_LastHitTime;        //上次受击时间
     #endregion
@@ -86,11 +82,12 @@ public class Enemy : MonoBehaviour
         ChaseState = new EnemyChaseState(this, StateMachine, enemyData, "Move");
         AttackState = new EnemyAttackState(this, StateMachine, enemyData, "Attack");
         HitState = new EnemyHitState(this, StateMachine, enemyData, "Hit");
+        DeathState = new EnemyDeathState(this, StateMachine, enemyData, "Death");
+
 
         AttackTimer = new Timer(enemyData.AttackInterval);      //用攻击间隔初始化计时器
+        PatrolRandomPos = new RandomPosition(Parameter.PatrolPoints[0].transform.position, Parameter.PatrolPoints[1].transform.position);       //初始化随机生成坐标脚本
 
-        m_LeftDownPosition = Parameter.PatrolPoints[0].transform.position;      //在脚本中储存巡逻点
-        m_RightTopPosition = Parameter.PatrolPoints[1].transform.position;
 
         foreach (Transform child in transform.parent)    //在场景中删除所有巡逻点
         {
@@ -204,16 +201,6 @@ public class Enemy : MonoBehaviour
     public float GetLastHitTime()
     {
         return m_LastHitTime;
-    }
-
-    public Vector2 GetLeftDownPos()
-    {
-        return m_LeftDownPosition;
-    }
-
-    public Vector2 GetRightTopPos()
-    {
-        return m_RightTopPosition;
     }
     #endregion
 

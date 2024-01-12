@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Data.Common;
 using UnityEngine;
+
 
 public class FireBatAttackState : EnemyAttackState
 {
@@ -24,16 +22,14 @@ public class FireBatAttackState : EnemyAttackState
 
     public override void LogicUpdate()
     {
-        animatorInfo = core.Animator.GetCurrentAnimatorStateInfo(0);       //获取当前动画
-
         if (Combat.IsHit)     //检测是否受击
         {
             stateMachine.ChangeState(enemy.HitState);
         }
 
-        if (animatorInfo.IsName("Attack"))
+        if (core.AnimatorInfo.IsName("Attack"))
         {
-            if (animatorInfo.normalizedTime >= 0.95f)     //播放完攻击动画则发射火球且切换成追击状态
+            if (core.AnimatorInfo.normalizedTime >= 0.95f)     //播放完攻击动画则发射火球且切换成追击状态
             {
                 m_FireBat.FireBallLaunch(m_Target);
                 stateMachine.ChangeState(enemy.ChaseState);

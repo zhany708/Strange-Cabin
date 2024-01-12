@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Data.Common;
 using UnityEngine;
 
 public class EnemyPatrolState : EnemyState
@@ -15,8 +12,9 @@ public class EnemyPatrolState : EnemyState
     public override void Enter()
     {
         base.Enter();
+
         //生成随机坐标
-        m_RandomPosition = new Vector2(Random.Range(enemy.GetLeftDownPos().x, enemy.GetRightTopPos().x), Random.Range(enemy.GetLeftDownPos().y, enemy.GetRightTopPos().y));
+        m_RandomPosition = enemy.PatrolRandomPos.GenerateSingleRandomPos();
     }
 
     public override void LogicUpdate()

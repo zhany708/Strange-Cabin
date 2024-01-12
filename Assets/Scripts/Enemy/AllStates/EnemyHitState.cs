@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Data.Common;
 using UnityEngine;
+
 
 public class EnemyHitState : EnemyState
 {
@@ -19,17 +17,20 @@ public class EnemyHitState : EnemyState
 
     public override void LogicUpdate()
     {
-        animatorInfo = core.Animator.GetCurrentAnimatorStateInfo(0);       //获取当前动画
-
-        if (animatorInfo.IsName("Hit"))
+        if (Stats.GetCurrentHealth() == 0)
         {
-            if (animatorInfo.normalizedTime >= 0.95f)
+            stateMachine.ChangeState(enemy.DeathState);
+        }
+
+        else if (core.AnimatorInfo.IsName("Hit"))
+        {
+            if (core.AnimatorInfo.normalizedTime >= 0.95f)
             {
                 enemy.Parameter.Target = GameObject.FindWithTag("Player").transform;        //寻找有Player标签的物件坐标
                 stateMachine.ChangeState(enemy.ChaseState);
             }
 
-            else if (animatorInfo.normalizedTime >= 0.5f)
+            else if (core.AnimatorInfo.normalizedTime >= 0.5f)
             {
                 Movement.SetVelocityZero();     //动画播到50%时停止移动
             }        

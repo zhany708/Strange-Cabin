@@ -1,6 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+
 
 public class EnemyAttackState : EnemyState
 {
@@ -17,11 +15,9 @@ public class EnemyAttackState : EnemyState
 
     public override void LogicUpdate()
     {
-        animatorInfo = core.Animator.GetCurrentAnimatorStateInfo(0);       //获取当前动画
-
         base.LogicUpdate();
 
-        if (animatorInfo.IsName("Attack") && animatorInfo.normalizedTime >= 0.95f)
+        if (core.AnimatorInfo.IsName("Attack") && core.AnimatorInfo.normalizedTime >= 0.95f)
         {
             stateMachine.ChangeState(enemy.ChaseState);
         }

@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
 
 public class EnemyState
 {
@@ -44,8 +43,6 @@ public class EnemyState
     protected Enemy enemy;
     protected EnemyStateMachine stateMachine;
     protected SO_EnemyData enemyData;
-
-    protected AnimatorStateInfo animatorInfo;       //²éÑ¯¶¯»­×´Ì¬
 
     protected bool isHit = false;
 
