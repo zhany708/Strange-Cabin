@@ -1,0 +1,120 @@
+using UnityEngine;
+
+
+public class Player : MonoBehaviour
+{
+    #region State Variables
+    public PlayerStateMachine StateMachine { get; private set; }
+    public PlayerIdleState IdleState { get; private set; }
+    public PlayerMoveState MoveState { get; private set; }
+    public PlayerHitState HitState { get; private set; }
+    public PlayerAttackState PrimaryAttackState { get; private set; }
+    public PlayerAttackState SecondaryAttackState { get; private set; }
+
+    [SerializeField]
+    SO_PlayerData m_PlayerData;
+    #endregion
+
+    #region Components
+    public Core Core { get; private set; }
+    public PlayerInputHandler InputHandler { get; private set; }
+    public PlayerInventory Inventory { get; private set; }
+    #endregion
+
+    #region Other Variable
+    Weapon m_PrimaryWeapon;
+    Weapon m_SecondaryWeapon;
+
+    int m_CurrentPrimaryWeaponNum = 0;      //使角色游戏开始默认装备匕首
+    int m_CurrentSecondaryWeaponNum = 0;
+    #endregion
+
+    #region Unity Callback Functions
+    private void Awake()
+    {
+        Core = GetComponentInChildren<Core>();      //从子物体那调用Core脚本
+
+        m_PrimaryWeapon = transform.Find("PrimaryWeapon").GetComponentInChildren<Weapon>();
+        m_SecondaryWeapon = transform.Find("SecondaryWeapon").GetComponentInChildren<Weapon>();
+
+        StateMachine = new PlayerStateMachine();
+
+        //初始化各状态
+        IdleState = new PlayerIdleState(this, StateMachine, m_PlayerData, "Idle");
+        MoveState = new PlayerMoveState(this, StateMachine, m_PlayerData, "Move");
+        HitState = new PlayerHitState(this, StateMachine, m_PlayerData, "Hit");
+        PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", m_PrimaryWeapon);
+        SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", m_SecondaryWeapon);
+    }
+
+    private void Start()
+    {
+        InputHandler = GetComponent<PlayerInputHandler>();
+        Inventory = GetComponent<PlayerInventory>();
+
+        StateMachine.Initialize(IdleState);     //初始化状态为闲置
+    }
+
+    private void Update()
+    {
+        //Core.LogicUpdate();     //获取当前速度
+
+        StateMachine.currentState.LogicUpdate();
+    }
+
+    private void FixedUpdate()
+    {
+        StateMachine.currentState.PhysicsUpdate();
+    }
+    #endregion
+
+    #region Other Functions
+    public void ChangeWeapon(GameObject weapon, bool isPrimary)
+    {
+        int newWeaponNum = CheckNum(weapon);        //获取新的武器计数
+
+        //将需要更换的武器通过SetActive激活，并根据主/副生成新的攻击状态
+        if (isPrimary)      //激活新武器于主手
+        {
+            Inventory.PrimaryWeapon[m_CurrentPrimaryWeaponNum].SetActive(false);
+            Inventory.PrimaryWeapon[newWeaponNum].SetActive(true);      
+
+            PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", Inventory.PrimaryWeapon[newWeaponNum].GetComponent<Weapon>());       //激活新攻击状态
+
+            m_CurrentPrimaryWeaponNum = newWeaponNum;   //重新设置当前武器计数
+        }
+
+        else     //激活新武器于副手
+        {
+            Inventory.SecondaryWeapon[m_CurrentSecondaryWeaponNum].SetActive(false);
+            Inventory.SecondaryWeapon[newWeaponNum].SetActive(true);      
+
+            SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", Inventory.SecondaryWeapon[newWeaponNum].GetComponent<Weapon>());  
+
+            m_CurrentSecondaryWeaponNum = newWeaponNum;
+        }
+    }
+
+
+    private int CheckNum(GameObject weapon)    //主武器和副武器的顺序一样，所以无需区分计数
+    {
+        int WeaponNum = 0;
+        for (int i = 0; i < Inventory.PrimaryWeapon.Length; i++)
+        {
+            if (weapon.ToString() == Inventory.PrimaryWeapon[i].ToString())
+            {
+                WeaponNum = i;
+            }
+        }
+
+        return WeaponNum;
+    }
+    #endregion
+
+    #region Animation Event Functions
+    private void DestroyPlayerAfterDeath()      //用于动画事件，摧毁物体
+    {
+        Destroy(gameObject);   
+    }
+    #endregion
+}
