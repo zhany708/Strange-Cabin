@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public class PlayerStateMachine
 {
     public PlayerState currentState {  get; private set; }  //创造一个公共Getter和一个私人Setter给这个变量

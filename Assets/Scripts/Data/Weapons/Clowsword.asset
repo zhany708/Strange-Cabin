@@ -10,18 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4acb3fb2612973541a031096f5adda14, type: 3}
-  m_Name: Dagger
+  m_Name: Clowsword
   m_EditorClassIdentifier: 
   attackDetails:
-  - AttackName: DownToUp
-    MovementSpeed: 1
-    DamageAmount: 3
-    KnockbackStrength: 3
-    CameraShakeIntensity: 1.5
-    CameraShakeDuration: 0.3
-  - AttackName: UpToDown
-    MovementSpeed: 1.2
+  - AttackName: Swing
+    MovementSpeed: 0.5
     DamageAmount: 5
     KnockbackStrength: 5
-    CameraShakeIntensity: 2
-    CameraShakeDuration: 0.5
+    CameraShakeIntensity: 1.7
+    CameraShakeDuration: 0.4

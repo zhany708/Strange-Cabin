@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -27,21 +25,21 @@ public class Player : MonoBehaviour
     Weapon m_PrimaryWeapon;
     Weapon m_SecondaryWeapon;
 
-    int m_CurrentPrimaryWeaponNum;
-    int m_CurrentSecondaryWeaponNum;
+    int m_CurrentPrimaryWeaponNum = 0;      //Ê¹½ÇÉ«ÓÎÏ·¿ªÊ¼Ä¬ÈÏ×°±¸Ø°Ê×
+    //int m_CurrentSecondaryWeaponNum = 0;
     #endregion
 
     #region Unity Callback Functions
     private void Awake()
     {
-        Core = GetComponentInChildren<Core>();      //ä»å­ç‰©ä½“é‚£è°ƒç”¨Coreè„šæœ¬
+        Core = GetComponentInChildren<Core>();      //´Ó×ÓÎïÌåÄÇµ÷ÓÃCore½Å±¾
 
         m_PrimaryWeapon = transform.Find("PrimaryWeapon").GetComponentInChildren<Weapon>();
         m_SecondaryWeapon = transform.Find("SecondaryWeapon").GetComponentInChildren<Weapon>();
 
         StateMachine = new PlayerStateMachine();
 
-        //åˆå§‹åŒ–å„çŠ¶æ€
+        //³õÊ¼»¯¸÷×´Ì¬
         IdleState = new PlayerIdleState(this, StateMachine, m_PlayerData, "Idle");
         MoveState = new PlayerMoveState(this, StateMachine, m_PlayerData, "Move");
         HitState = new PlayerHitState(this, StateMachine, m_PlayerData, "Hit");
@@ -54,14 +52,12 @@ public class Player : MonoBehaviour
         InputHandler = GetComponent<PlayerInputHandler>();
         Inventory = GetComponent<PlayerInventory>();
 
-        CheckWeaponNum();
-
-        StateMachine.Initialize(IdleState);     //åˆå§‹åŒ–çŠ¶æ€ä¸ºé—²ç½®
+        StateMachine.Initialize(IdleState);     //³õÊ¼»¯×´Ì¬ÎªÏĞÖÃ
     }
 
     private void Update()
     {
-        //Core.LogicUpdate();     //è·å–å½“å‰é€Ÿåº¦
+        //Core.LogicUpdate();     //»ñÈ¡µ±Ç°ËÙ¶È
 
         StateMachine.currentState.LogicUpdate();
     }
@@ -76,7 +72,7 @@ public class Player : MonoBehaviour
     public void GenerateNewAttackState(Weapon weapon)
     {
         /*
-        if (Inventory.weaponCount == 0)      //æ ¹æ®æ­¦å™¨è®¡æ•°æ›´æ”¹è§’è‰²æ”»å‡»çŠ¶æ€ä¸­çš„æ­¦å™¨å˜é‡
+        if (Inventory.weaponCount == 0)      //¸ù¾İÎäÆ÷¼ÆÊı¸ü¸Ä½ÇÉ«¹¥»÷×´Ì¬ÖĞµÄÎäÆ÷±äÁ¿
         {
             PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", weapon);
 
@@ -92,27 +88,34 @@ public class Player : MonoBehaviour
     public void ChangeWeapon(GameObject weapon)
     {
         Inventory.PrimaryWeapon[m_CurrentPrimaryWeaponNum].SetActive(false);
-        Inventory.SecondaryWeapon[m_CurrentSecondaryWeaponNum].SetActive(false);
+        //Inventory.SecondaryWeapon[m_CurrentSecondaryWeaponNum].SetActive(false);
 
-        //éœ€è¦å®ç°ï¼šå°†éœ€è¦æ›´æ¢çš„æ­¦å™¨é€šè¿‡SetActiveæ¿€æ´»ï¼Œå¹¶æ ¹æ®ä¸»/å‰¯ç”Ÿæˆæ–°çš„æ”»å‡»çŠ¶æ€
+        //½«ĞèÒª¸ü»»µÄÎäÆ÷Í¨¹ıSetActive¼¤»î£¬²¢¸ù¾İÖ÷/¸±Éú³ÉĞÂµÄ¹¥»÷×´Ì¬
+        int newWeaponNum = CheckNum(weapon);        //»ñÈ¡ĞÂµÄÎäÆ÷¼ÆÊı
+
+        Inventory.PrimaryWeapon[newWeaponNum].SetActive(true);      //¼¤»îĞÂÎäÆ÷
+
+        PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", Inventory.PrimaryWeapon[newWeaponNum].GetComponent<Weapon>());       //¼¤»îĞÂ¹¥»÷×´Ì¬
     }
 
 
-    private int CheckNum(Weapon weapon)    //ä¸»æ­¦å™¨å’Œå‰¯æ­¦å™¨çš„é¡ºåºä¸€æ ·ï¼Œæ‰€ä»¥æ— éœ€åŒºåˆ†è®¡æ•°
+    private int CheckNum(GameObject weapon)    //Ö÷ÎäÆ÷ºÍ¸±ÎäÆ÷µÄË³ĞòÒ»Ñù£¬ËùÒÔÎŞĞèÇø·Ö¼ÆÊı
     {
-        int WeaponNum;
-        for (int i = 0; i < Inventory.PrimaryWeapon.Length; i++)       
+        int WeaponNum = 0;
+        for (int i = 0; i < Inventory.PrimaryWeapon.Length; i++)
         {
             if (weapon.ToString() == Inventory.PrimaryWeapon[i].ToString())
             {
                 WeaponNum = i;
             }
         }
+
+        return WeaponNum;
     }
     #endregion
 
     #region Animation Event Functions
-    private void DestroyPlayerAfterDeath()      //ç”¨äºåŠ¨ç”»äº‹ä»¶ï¼Œæ‘§æ¯ç‰©ä½“
+    private void DestroyPlayerAfterDeath()      //ÓÃÓÚ¶¯»­ÊÂ¼ş£¬´İ»ÙÎïÌå
     {
         Destroy(gameObject);   
     }
