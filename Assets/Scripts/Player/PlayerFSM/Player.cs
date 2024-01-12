@@ -26,7 +26,7 @@ public class Player : MonoBehaviour
     Weapon m_SecondaryWeapon;
 
     int m_CurrentPrimaryWeaponNum = 0;      //使角色游戏开始默认装备匕首
-    //int m_CurrentSecondaryWeaponNum = 0;
+    int m_CurrentSecondaryWeaponNum = 0;
     #endregion
 
     #region Unity Callback Functions
@@ -69,33 +69,30 @@ public class Player : MonoBehaviour
     #endregion
 
     #region Other Functions
-    public void GenerateNewAttackState(Weapon weapon)
+    public void ChangeWeapon(GameObject weapon, bool isPrimary)
     {
-        /*
-        if (Inventory.weaponCount == 0)      //根据武器计数更改角色攻击状态中的武器变量
-        {
-            PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", weapon);
-
-            Debug.Log("You have new Primary Attack State!");
-        }
-        else
-        {
-            SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", weapon);
-        }
-        */
-    }
-
-    public void ChangeWeapon(GameObject weapon)
-    {
-        Inventory.PrimaryWeapon[m_CurrentPrimaryWeaponNum].SetActive(false);
-        //Inventory.SecondaryWeapon[m_CurrentSecondaryWeaponNum].SetActive(false);
-
-        //将需要更换的武器通过SetActive激活，并根据主/副生成新的攻击状态
         int newWeaponNum = CheckNum(weapon);        //获取新的武器计数
 
-        Inventory.PrimaryWeapon[newWeaponNum].SetActive(true);      //激活新武器
+        //将需要更换的武器通过SetActive激活，并根据主/副生成新的攻击状态
+        if (isPrimary)      //激活新武器于主手
+        {
+            Inventory.PrimaryWeapon[m_CurrentPrimaryWeaponNum].SetActive(false);
+            Inventory.PrimaryWeapon[newWeaponNum].SetActive(true);      
 
-        PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", Inventory.PrimaryWeapon[newWeaponNum].GetComponent<Weapon>());       //激活新攻击状态
+            PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", Inventory.PrimaryWeapon[newWeaponNum].GetComponent<Weapon>());       //激活新攻击状态
+
+            m_CurrentPrimaryWeaponNum = newWeaponNum;   //重新设置当前武器计数
+        }
+
+        else     //激活新武器于副手
+        {
+            Inventory.SecondaryWeapon[m_CurrentSecondaryWeaponNum].SetActive(false);
+            Inventory.SecondaryWeapon[newWeaponNum].SetActive(true);      
+
+            SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", Inventory.SecondaryWeapon[newWeaponNum].GetComponent<Weapon>());  
+
+            m_CurrentSecondaryWeaponNum = newWeaponNum;
+        }
     }
 
 
