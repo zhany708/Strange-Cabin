@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Combat : CoreComponent, Idamageable, IKnockbackable    //用于管理受击
 {
-    [SerializeField] GameObject m_DamageParticles;
+    [SerializeField] private GameObject m_DamageParticles;
 
     public bool IsHit {  get; private set; }
     public float HitResistance;     //击退抗性

@@ -24,18 +24,21 @@ public class Stats : CoreComponent      //用于管理生命，魔力等状态信息
 
     public virtual void DecreaseHealth(float amount)
     {
-        if (amount > Defense)
+        if (currentHealth != 0)      //生命值为0时就不会继续受伤了
         {
-            currentHealth -= (amount - Defense);      //受到的伤害值大于防御力时才会扣血
-        }
+            if (amount > Defense)    
+            {
+                currentHealth -= (amount - Defense);      //受到的伤害值大于防御力时才会扣血
+            }
 
-        if (currentHealth <= 0)
-        {
-            currentHealth = 0;
+            if (currentHealth <= 0)
+            {
+                currentHealth = 0;
 
-            OnHealthZero?.Invoke();     //先检查是否为空，再调用延时函数
+                OnHealthZero?.Invoke();     //先检查是否为空，再调用延时函数
 
-            //Debug.Log("Health is zero!!");
+                //Debug.Log("Health is zero!!");
+            }
         }
     }
 
