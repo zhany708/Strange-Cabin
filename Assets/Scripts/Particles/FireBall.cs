@@ -19,7 +19,7 @@ public class FireBall : MonoBehaviour
     {
         if (transform.position.magnitude >= 30f)        //火球经过一段距离后自我销毁
         {
-            Destroy(gameObject);
+            ParticlePool.Instance.PushObject(gameObject);
         }
     }
 
@@ -36,7 +36,7 @@ public class FireBall : MonoBehaviour
     
     private void OnCollisionEnter2D(Collision2D other)
     {        
-        Destroy(gameObject);      //使火球碰到其他碰撞体（墙壁，家具等）时自毁
+        ParticlePool.Instance.PushObject(gameObject);       //使火球碰到其他碰撞体（墙壁，家具等）时自毁
     }
     
     
@@ -56,6 +56,6 @@ public class FireBall : MonoBehaviour
             knockbackable.KnockBack(DamageKnockbackStrength, m_AttackDirection);
         }
 
-        Destroy(gameObject);
+        ParticlePool.Instance.PushObject(gameObject);
     }
 }

@@ -5,6 +5,6 @@ public class ParticleController : MonoBehaviour
 {
     private void DestroyGameObject()    //用于动画帧事件
     {
-        Destroy(gameObject);
+        ParticlePool.Instance.PushObject(gameObject);
     }
 }
