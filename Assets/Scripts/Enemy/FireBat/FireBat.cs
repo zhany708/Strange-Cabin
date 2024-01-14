@@ -25,7 +25,12 @@ public class FireBat : Enemy
 
         float angle = Mathf.Atan2((target.position.y + 0.5f - attackPosition.y), (target.position.x - attackPosition.x)) * Mathf.Rad2Deg;      //计算火球与玩家中心之间的夹角
 
-        GameObject FireBallObject = Instantiate(FireBallPrefab, attackPosition, Quaternion.Euler(0, 0, angle));      //生成火球
+        //生成火球，并设置坐标和旋转
+        GameObject FireBallObject = ParticlePool.Instance.GetObject(FireBallPrefab);
+        FireBallObject.transform.position = attackPosition;
+        FireBallObject.transform.rotation = Quaternion.Euler(0, 0, angle);
+
+
 
         FireBall fireBall = FireBallObject.GetComponent<FireBall>();        //调用火球脚本
         fireBall.Launch(target.position + Vector3.up * 0.5f - FireBallObject.transform.position, 150);        //朝角色中心方向发射火球

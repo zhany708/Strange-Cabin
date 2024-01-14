@@ -1,19 +1,15 @@
 public class EnemyDeath : Death
 {
-    DoorController m_doorController;
+    DoorController m_DoorController;
 
-    protected override void Awake()
-    {
-        base.Awake();
+    
 
-        m_doorController = GetComponentInParent<RoomController>().GetComponentInChildren<DoorController>();
-    }
 
     public override void LogicUpdate()
     {
         if (core.AnimatorInfo.IsName("Death") && core.AnimatorInfo.normalizedTime >= 0.85f)
         {
-            m_doorController.OpenDoors();       //敌人死亡后开门      
+            m_DoorController.OpenDoors();       //敌人死亡后开门      
         }
     }
 
@@ -22,6 +18,14 @@ public class EnemyDeath : Death
     {
         base.Die();
 
-        m_doorController.IncrementEnemyCount();     //增加敌人计数器的计数
+        m_DoorController.IncrementEnemyCount();     //增加敌人计数器的计数
+    }
+
+
+
+
+    public void SetDoorController(DoorController door)
+    {
+        m_DoorController = door;
     }
 }
