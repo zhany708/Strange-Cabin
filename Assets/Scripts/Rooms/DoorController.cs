@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 using ZhangYu.Utilities;
 
 public class DoorController : MonoBehaviour
@@ -22,7 +23,11 @@ public class DoorController : MonoBehaviour
     private void Awake()
     {
         m_MainRoom = GetComponentInParent<RoomController>();
-  
+
+        /*  当需要房间的两个点时再使用这两个变量
+        LeftDownPatrolPoint = new Vector2(m_MainRoom.transform.position.x - 5, m_MainRoom.transform.position.y - 2);
+        RightTopPatrolPoint = new Vector2(m_MainRoom.transform.position.x + 5, m_MainRoom.transform.position.y + 2);
+        */
 
         //生成的x范围为房间坐标的x加减5，生成的y范围为房间坐标的y加减2
         m_EnemySpwanPos = new RandomPosition(new Vector2(m_MainRoom.transform.position.x - 5, m_MainRoom.transform.position.y - 2), new Vector2(m_MainRoom.transform.position.x + 5, m_MainRoom.transform.position.y + 2));
@@ -30,16 +35,6 @@ public class DoorController : MonoBehaviour
 
     private void Start()
     {
-        if (EnemyObjects.Length != 0)
-        {
-            List<Vector2> enemySpawnList = m_EnemySpwanPos.GenerateMultiRandomPos(EnemyObjects.Length);     //根据怪物数量生成随机坐标list
-
-            for (int i = 0; i < EnemyObjects.Length; i++)
-            {
-                EnemyObjects[i].transform.position = enemySpawnList[i];     //将生成的随即坐标赋值给每个敌人
-            }
-        }
-
         EnemyCount = 0;
     }
 
@@ -85,14 +80,16 @@ public class DoorController : MonoBehaviour
             DoorAnimators[i].SetBool("IsClose", true);
         }
 
-
-
-
         if (EnemyObjects.Length != 0)   //如果房间有怪物
         {
+            List<Vector2> enemySpawnList = m_EnemySpwanPos.GenerateMultiRandomPos(EnemyObjects.Length);     //根据怪物数量生成随机坐标list
+
             for (int i = 0; i < EnemyObjects.Length; i++)
             {
-                EnemyObjects[i].SetActive(true);    //玩家进入房间后激活怪物
+                GameObject enemy = EnemyPool.Instance.GetObject(EnemyObjects[i], enemySpawnList[i]);     //从敌人对象池中生成敌人
+                enemy.transform.position = enemySpawnList[i];
+                enemy.GetComponentInChildren<EnemyDeath>().SetDoorController(this);
+                enemy.GetComponentInChildren<Stats>().SetCurrentHealth(enemy.GetComponentInChildren<Stats>().MaxHealth);    //生成敌人后重置生命，否则重新激活的敌人生命依然为0
             }
         }
     }

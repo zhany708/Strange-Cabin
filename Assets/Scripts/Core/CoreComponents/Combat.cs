@@ -36,6 +36,7 @@ public class Combat : CoreComponent, Idamageable, IKnockbackable    //用于管理受
     {
         if (strength > HitResistance)
         {
+            //Debug.Log("You got knocked!");
             Movement.SetVelocity(strength - HitResistance, direction);      //只有当击退力度大于击退抗性时才会被击退
         }
     }

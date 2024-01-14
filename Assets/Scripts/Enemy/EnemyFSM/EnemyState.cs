@@ -57,13 +57,24 @@ public class EnemyState
         this.enemyData = enemyData;
         m_AnimationBoolName = animBoolName;
         core = enemy.Core;
+
+        if (!core)
+        {
+            Debug.LogError("Core is missing in the EnemyState!");
+        }
     }
 
 
     public virtual void Enter()
     {
-        enemy.Core.Animator.SetBool(m_AnimationBoolName, true);     //播放状态的动画
+        if (!Movement || !Combat || !Stats)
+        {
+            Debug.Log("Something is wrong in the EnemyState!");
+        }
 
+
+        core.Animator.SetBool(m_AnimationBoolName, true);     //播放状态的动画
+        
         //Debug.Log(m_AnimationBoolName);
     }
 

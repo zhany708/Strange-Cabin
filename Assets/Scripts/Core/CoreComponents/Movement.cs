@@ -14,9 +14,16 @@ public class Movement : CoreComponent   //用于管理移动
         base.Awake();
 
         Rigidbody2d = GetComponentInParent<Rigidbody2D>();
+
+        if (!Rigidbody2d)
+        {
+            Debug.Log("Rigidbody is missing!");
+        }
     }
 
-    
+
+
+
     //public override void LogicUpdate() { }
 
     #region Setters

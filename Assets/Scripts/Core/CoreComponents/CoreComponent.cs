@@ -37,6 +37,7 @@ public class CoreComponent : MonoBehaviour
 
     protected virtual void Awake()
     {
+        
         core = transform.parent.GetComponent<Core>();       //从父物体那里调用Core组件
 
         if (!core)
@@ -44,16 +45,14 @@ public class CoreComponent : MonoBehaviour
             Debug.LogError("There is no Core on the parent");
         }
 
+        if (!Movement || !particleManager || !Stats)
+        {
+            Debug.Log("Something is wrong in the CoreComponent!");
+        }
+
         core.Addcomponent(this);    //将所有需要运用LogicUpdate函数的组件加进List
+        
     }
-
-    
-    protected virtual void Update()
-    {
-        core.LogicUpdate();
-    }
-    
-
 
 
 

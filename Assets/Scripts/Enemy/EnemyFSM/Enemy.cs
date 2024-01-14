@@ -1,4 +1,5 @@
 using System;
+using UnityEditorInternal;
 using UnityEngine;
 using ZhangYu.Utilities;
 
@@ -46,16 +47,16 @@ public class Enemy : MonoBehaviour
 
 
     /*  基础调用核心组件的方法
-    public Death Death
+    public EnemyDeath Death
     {
         get
         {
             if (m_Death) { return m_Death; }      //检查组件是否为空
-            m_Death = Core.GetCoreComponent<Death>();
+            m_Death = Core.GetCoreComponent<EnemyDeath>();
             return m_Death;
         }
     }
-    private Death m_Death;
+    private EnemyDeath m_Death;
     */
 
 
@@ -66,51 +67,37 @@ public class Enemy : MonoBehaviour
     #region Variables
     public bool CanAttack { get ; private set; }        //用于攻击间隔
 
+    Vector2 SpawnPos;
     float m_LastHitTime;        //上次受击时间
     #endregion
 
     #region Unity Callback Functions
     private void Awake()
-    {
+    {  
         Core = GetComponentInChildren<Core>();      //从子物体那调用Core脚本
 
+        
         StateMachine = new EnemyStateMachine();
 
         //初始化各状态
         IdleState = new EnemyIdleState(this, StateMachine, enemyData, "Idle");
-        PatrolState = new EnemyPatrolState(this, StateMachine, enemyData, "Move");
-        ChaseState = new EnemyChaseState(this, StateMachine, enemyData, "Move");
+        PatrolState = new EnemyPatrolState(this, StateMachine, enemyData, "Patrol");
+        ChaseState = new EnemyChaseState(this, StateMachine, enemyData, "Chase");
         AttackState = new EnemyAttackState(this, StateMachine, enemyData, "Attack");
         HitState = new EnemyHitState(this, StateMachine, enemyData, "Hit");
         DeathState = new EnemyDeathState(this, StateMachine, enemyData, "Death");
-
-
-        AttackTimer = new Timer(enemyData.AttackInterval);      //用攻击间隔初始化计时器
-        PatrolRandomPos = new RandomPosition(Parameter.PatrolPoints[0].transform.position, Parameter.PatrolPoints[1].transform.position);       //初始化随机生成坐标脚本
-
-
-        foreach (Transform child in transform.parent)    //在场景中删除所有巡逻点
-        {
-            foreach (Transform child2 in child)     //在敌人的父物体中检索每一个子物体的子物体
-            {
-                if (child2.CompareTag("PatrolPoint"))
-                {
-                    Destroy(child2.gameObject);
-                }
-            }
-        }
+        
     }
+
 
     protected virtual void Start()
     {
         StateMachine.Initialize(IdleState);     //初始化状态为闲置
-
-        CanAttack = true;   //游戏开始时将可攻击设置为true
     }
 
     private void Update()
     {
-        //Core.LogicUpdate();     //获取当前速度
+        Core.LogicUpdate();     //获取当前速度
 
         StateMachine.CurrentState.LogicUpdate();
 
@@ -122,13 +109,38 @@ public class Enemy : MonoBehaviour
         StateMachine.CurrentState.PhysicsUpdate();
     }
 
-    private void OnEnable()
+    protected virtual void OnEnable()
     {
-        AttackTimer.OnTimerDone += SetCanAttackTrue;        //触发事件（计时器到达目标时间）时将可攻击布尔设置为true
+        AttackTimer = new Timer(enemyData.AttackInterval);      //用攻击间隔初始化计时器
+
+        //根据所处房间初始化随机生成坐标脚本（transform.localPosition返回的永远是相对于父物体的坐标）
+        PatrolRandomPos = new RandomPosition(Parameter.PatrolPoints[0].transform.localPosition + (Vector3)SpawnPos, Parameter.PatrolPoints[1].transform.localPosition + (Vector3)SpawnPos);     
+        //Debug.Log("The LeftDown point is " + (Parameter.PatrolPoints[0].transform.localPosition + (Vector3)SpawnPos) );
+
+
+
+        foreach (Transform child in transform.parent)    //在场景中取消激活所有巡逻点
+        {
+            foreach (Transform child2 in child)     //在敌人的父物体中检索每一个子物体的子物体
+            {
+                if (child2.CompareTag("PatrolPoint"))
+                {
+                    child2.gameObject.SetActive(false);  
+                }
+            }
+        }
+
+
+        CanAttack = true;   //游戏开始时将可攻击设置为true
+        AttackTimer.OnTimerDone += SetCanAttackTrue;        //触发事件（计时器到达目标时间）
     }
 
     private void OnDisable()
     {
+        Movement.Rigidbody2d.constraints = RigidbodyConstraints2D.FreezeRotation;   //重新激活敌人后只冻结Z轴的旋转，因为敌人死亡时被禁止所有移动
+
+        StateMachine.Initialize(PatrolState);     //取消激活时初始化状态为巡逻，以便后面重新激活后进入正常状态
+
         AttackTimer.OnTimerDone -= SetCanAttackTrue;
     }
     #endregion
@@ -156,7 +168,7 @@ public class Enemy : MonoBehaviour
     {
         if (transform.parent != null)
         {
-            Destroy(transform.parent.gameObject);       //摧毁敌人的父物体，也将摧毁父物体的所有子物体
+            EnemyPool.Instance.PushObject(transform.parent.gameObject);      //将敌人的父物体放回池中，也将放回父物体的所有子物体
         }
     }
     #endregion
@@ -214,6 +226,11 @@ public class Enemy : MonoBehaviour
     public void SetLastHitTime(float currentTime)
     {
         m_LastHitTime = currentTime;
+    }
+
+    public void SetSpawnPos(Vector2 pos)
+    {
+        SpawnPos = pos;
     }
     #endregion
 }

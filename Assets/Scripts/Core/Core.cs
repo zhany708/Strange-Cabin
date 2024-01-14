@@ -14,9 +14,16 @@ public class Core : MonoBehaviour
 
     private void Awake()
     {
+        
+        //Debug.Log("Core Awake");
         Animator = GetComponentInParent<Animator>();        //调用父物体的动画控制器组件
-    }
 
+        if (!Animator)
+        {
+            Debug.LogError("Animator is missing!");
+        }
+        
+    }
 
     public void LogicUpdate()
     {

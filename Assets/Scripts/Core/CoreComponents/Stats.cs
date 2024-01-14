@@ -42,10 +42,17 @@ public class Stats : CoreComponent      //用于管理生命，魔力等状态信息
         }
     }
 
-    #region Setters
+    #region Getters
     public float GetCurrentHealth()
     {
         return currentHealth;
+    }
+    #endregion
+
+    #region Setters
+    public void SetCurrentHealth(float health)
+    {
+        currentHealth = health;
     }
     #endregion
 }
