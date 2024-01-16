@@ -69,10 +69,11 @@ public class Enemy : MonoBehaviour
 
     Vector2 SpawnPos;
     float m_LastHitTime;        //上次受击时间
+    bool m_IsReactivate = false;
     #endregion
 
     #region Unity Callback Functions
-    private void Awake()
+    private void Awake()    //最早实施的函数（只实施一次）
     {  
         Core = GetComponentInChildren<Core>();      //从子物体那调用Core脚本
 
@@ -90,7 +91,7 @@ public class Enemy : MonoBehaviour
     }
 
 
-    protected virtual void Start()
+    protected virtual void Start()      //只在第一帧运行前运行这个函数
     {
         StateMachine.Initialize(IdleState);     //初始化状态为闲置
     }
@@ -109,7 +110,7 @@ public class Enemy : MonoBehaviour
         StateMachine.CurrentState.PhysicsUpdate();
     }
 
-    protected virtual void OnEnable()
+    protected virtual void OnEnable()       //每次重新激活时都会运行这个函数
     {
         AttackTimer = new Timer(enemyData.AttackInterval);      //用攻击间隔初始化计时器
 
@@ -133,13 +134,19 @@ public class Enemy : MonoBehaviour
 
         CanAttack = true;   //游戏开始时将可攻击设置为true
         AttackTimer.OnTimerDone += SetCanAttackTrue;        //触发事件（计时器到达目标时间）
+
+        if (m_IsReactivate)     //敌人重新激活后才会在这里初始化闲置状态，否则第一次生成时如果在这初始化会因为脚本的实施顺序出现null错误
+        {
+            StateMachine.Initialize(IdleState);
+        }
     }
 
     private void OnDisable()
     {
         Movement.Rigidbody2d.constraints = RigidbodyConstraints2D.FreezeRotation;   //重新激活敌人后只冻结Z轴的旋转，因为敌人死亡时被禁止所有移动
+        Movement.SetVelocityZero();     //取消激活后将刚体速度重置，防止报错
 
-        StateMachine.Initialize(PatrolState);     //取消激活时初始化状态为巡逻，以便后面重新激活后进入正常状态
+        m_IsReactivate = true;
 
         AttackTimer.OnTimerDone -= SetCanAttackTrue;
     }
