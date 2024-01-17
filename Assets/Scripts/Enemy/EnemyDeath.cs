@@ -7,7 +7,7 @@ public class EnemyDeath : Death
 
     public override void LogicUpdate()
     {
-        if (core.AnimatorInfo.IsName("Death") && core.AnimatorInfo.normalizedTime >= 0.85f)
+        if (core.AnimatorInfo.IsName("Death") && core.AnimatorInfo.normalizedTime >= 0.8f)  //最高不能超过0.8.否则敌人死亡后取消激活前可能来不及执行此函数
         {
             m_DoorController.OpenDoors();       //敌人死亡后开门      
         }

@@ -9,13 +9,13 @@ public class DoorController : MonoBehaviour
     public GameObject[] EnemyObjects;
 
     public int EnemyCount {  get; private set; }
+    public bool IsRoomClean = false;     //表示房间中怪物是否以及清理干净
 
 
 
     RoomController m_MainRoom;
     RandomPosition m_EnemySpwanPos;
 
-    bool m_IsRoomClean = false;     //表示房间中怪物是否以及清理干净
     
 
 
@@ -45,9 +45,10 @@ public class DoorController : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            if (!m_IsRoomClean)
+            if (!IsRoomClean)
             {
                 CloseDoors();
+                GenerateEnemy();
             }        
         }
     }
@@ -66,7 +67,7 @@ public class DoorController : MonoBehaviour
                     DoorAnimators[i].SetBool("IsOpen", true);      //怪物全部死亡后将门打开
                     DoorAnimators[i].SetBool("IsClose", false);
 
-                    m_IsRoomClean = true;
+                    IsRoomClean = true;
                 }
             }
         }
@@ -79,7 +80,12 @@ public class DoorController : MonoBehaviour
             DoorAnimators[i].SetBool("IsOpen", false);      //角色进入房间后将门关闭
             DoorAnimators[i].SetBool("IsClose", true);
         }
+    }
 
+
+
+    private void GenerateEnemy()
+    {
         if (EnemyObjects.Length != 0)   //如果房间有怪物
         {
             List<Vector2> enemySpawnList = m_EnemySpwanPos.GenerateMultiRandomPos(EnemyObjects.Length);     //根据怪物数量生成随机坐标list
@@ -93,6 +99,10 @@ public class DoorController : MonoBehaviour
             }
         }
     }
+
+
+
+
 
 
 
