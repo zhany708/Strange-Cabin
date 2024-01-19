@@ -16,6 +16,10 @@ public class Player : MonoBehaviour
     #endregion
 
     #region Components
+    public Animator FootAnimator { get; private set; }
+
+
+
     public Core Core { get; private set; }
     public PlayerInputHandler InputHandler { get; private set; }
     public PlayerInventory Inventory { get; private set; }
@@ -27,11 +31,16 @@ public class Player : MonoBehaviour
 
     int m_CurrentPrimaryWeaponNum = 0;      //使角色游戏开始默认装备匕首
     int m_CurrentSecondaryWeaponNum = 0;
+
+    int m_FacingNum = 1;
+    bool m_FirstFrame = true;
     #endregion
 
     #region Unity Callback Functions
     private void Awake()
     {
+        FootAnimator = transform.Find("PlayerFoot").GetComponent<Animator>();   //获取脚上的动画器组件
+
         Core = GetComponentInChildren<Core>();      //从子物体那调用Core脚本
 
         m_PrimaryWeapon = transform.Find("PrimaryWeapon").GetComponentInChildren<Weapon>();
@@ -41,10 +50,10 @@ public class Player : MonoBehaviour
 
         //初始化各状态
         IdleState = new PlayerIdleState(this, StateMachine, m_PlayerData, "Idle");
-        MoveState = new PlayerMoveState(this, StateMachine, m_PlayerData, "Move");
+        MoveState = new PlayerMoveState(this, StateMachine, m_PlayerData, "Idle");
         HitState = new PlayerHitState(this, StateMachine, m_PlayerData, "Hit");
-        PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", m_PrimaryWeapon);
-        SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", m_SecondaryWeapon);
+        PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Idle", m_PrimaryWeapon);
+        SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Idle", m_SecondaryWeapon);
     }
 
     private void Start()
@@ -52,12 +61,21 @@ public class Player : MonoBehaviour
         InputHandler = GetComponent<PlayerInputHandler>();
         Inventory = GetComponent<PlayerInventory>();
 
+
         StateMachine.Initialize(IdleState);     //初始化状态为闲置
     }
 
     private void Update()
     {
         //Core.LogicUpdate();     //获取当前速度
+
+        if (m_FirstFrame)       //防止第一帧角色异常翻转。ToDO:后续每当暂停游戏时，也需要防止恢复后第一帧角色异常翻转
+        {
+            m_FirstFrame = false;
+            return;
+        }
+
+        Flip();   //持续检测是否翻转玩家
 
         StateMachine.currentState.LogicUpdate();
     }
@@ -108,6 +126,14 @@ public class Player : MonoBehaviour
         }
 
         return WeaponNum;
+    }
+
+
+    private void Flip()
+    {
+        m_FacingNum = InputHandler.ProjectedMousePos.x < transform.position.x ? -1 : 1;     //如果鼠标坐标位于玩家左侧，则翻转玩家
+
+        transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * m_FacingNum, transform.localScale.y, transform.localScale.z);      //用于翻转角色
     }
     #endregion
 
