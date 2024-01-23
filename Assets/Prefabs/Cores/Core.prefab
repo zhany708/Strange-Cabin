@@ -55,9 +55,9 @@ GameObject:
   - component: {fileID: 4263505985493437507}
   - component: {fileID: 1811303549556247808}
   - component: {fileID: 5962982641609353529}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Combat
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -238,7 +238,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7402249788885419701}
-  - component: {fileID: 8152293950424455566}
+  - component: {fileID: 8898165203146519}
   m_Layer: 0
   m_Name: Stats
   m_TagString: Untagged
@@ -261,7 +261,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 298580204456019825}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8152293950424455566
+--- !u!114 &8898165203146519
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -270,7 +270,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6276392631808897812}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09bf23643693fcf4294fd92df7d45fcf, type: 3}
+  m_Script: {fileID: 11500000, guid: 2d03c0de8bbd36a448331c23b753cc82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   MaxHealth: 99
