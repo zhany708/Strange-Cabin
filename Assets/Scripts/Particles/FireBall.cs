@@ -1,4 +1,5 @@
 using UnityEngine;
+using ZhangYu.Utilities;
 
 
 public class FireBall : MonoBehaviour
@@ -44,11 +45,12 @@ public class FireBall : MonoBehaviour
     {
         Idamageable damageable = other.GetComponent<Idamageable>();
         IKnockbackable knockbackable = other.GetComponent<IKnockbackable>();
+        Flip hitFlip = other.GetComponent<Flip>();
 
         if (damageable != null)
         {
             damageable.Damage(DamageAmount);
-            damageable.GetHit(m_AttackDirection);
+            //damageable.GetHit(m_AttackDirection);
         }
 
         if (knockbackable != null)

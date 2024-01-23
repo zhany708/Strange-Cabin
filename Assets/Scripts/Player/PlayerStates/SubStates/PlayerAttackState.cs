@@ -21,7 +21,14 @@ public class PlayerAttackState : PlayerAbilityState
 
         m_Weapon.EnterWeapon();
     }
-    
+
+    public override void PhysicsUpdate()
+    {
+        base.PhysicsUpdate();
+
+        Movement.SetVelocity(playerData.MovementVelocity, player.InputHandler.RawMovementInput);
+    }
+
 
 
 

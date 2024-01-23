@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using ZhangYu.Utilities;
 
 
 public class Player : MonoBehaviour
@@ -23,16 +25,20 @@ public class Player : MonoBehaviour
     public Core Core { get; private set; }
     public PlayerInputHandler InputHandler { get; private set; }
     public PlayerInventory Inventory { get; private set; }
+    public Weapon PrimaryWeapon {  get; private set; }
+    public Weapon SecondaryWeapon {  get; private set; }
+
+
+    Flip m_PlayerFlip;
     #endregion
 
     #region Other Variable
-    Weapon m_PrimaryWeapon;
-    Weapon m_SecondaryWeapon;
+    public int FacingNum = 1;
+
 
     int m_CurrentPrimaryWeaponNum = 0;      //使角色游戏开始默认装备匕首
     int m_CurrentSecondaryWeaponNum = 0;
 
-    int m_FacingNum = 1;
     bool m_FirstFrame = true;
     #endregion
 
@@ -43,8 +49,8 @@ public class Player : MonoBehaviour
 
         Core = GetComponentInChildren<Core>();      //从子物体那调用Core脚本
 
-        m_PrimaryWeapon = transform.Find("PrimaryWeapon").GetComponentInChildren<Weapon>();
-        m_SecondaryWeapon = transform.Find("SecondaryWeapon").GetComponentInChildren<Weapon>();
+        PrimaryWeapon = transform.Find("PrimaryWeapon").GetComponentInChildren<Weapon>();
+        SecondaryWeapon = transform.Find("SecondaryWeapon").GetComponentInChildren<Weapon>();
 
         StateMachine = new PlayerStateMachine();
 
@@ -52,8 +58,8 @@ public class Player : MonoBehaviour
         IdleState = new PlayerIdleState(this, StateMachine, m_PlayerData, "Idle");
         MoveState = new PlayerMoveState(this, StateMachine, m_PlayerData, "Idle");
         HitState = new PlayerHitState(this, StateMachine, m_PlayerData, "Hit");
-        PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Idle", m_PrimaryWeapon);
-        SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Idle", m_SecondaryWeapon);
+        PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Idle", PrimaryWeapon);
+        SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Idle", SecondaryWeapon);
     }
 
     private void Start()
@@ -61,6 +67,7 @@ public class Player : MonoBehaviour
         InputHandler = GetComponent<PlayerInputHandler>();
         Inventory = GetComponent<PlayerInventory>();
 
+        m_PlayerFlip = new Flip(transform);
 
         StateMachine.Initialize(IdleState);     //初始化状态为闲置
     }
@@ -75,7 +82,7 @@ public class Player : MonoBehaviour
             return;
         }
 
-        Flip();   //持续检测是否翻转玩家
+        PlayerFlip();   //持续检测是否翻转玩家
 
         StateMachine.currentState.LogicUpdate();
     }
@@ -97,7 +104,7 @@ public class Player : MonoBehaviour
             Inventory.PrimaryWeapon[m_CurrentPrimaryWeaponNum].SetActive(false);
             Inventory.PrimaryWeapon[newWeaponNum].SetActive(true);      
 
-            PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", Inventory.PrimaryWeapon[newWeaponNum].GetComponent<Weapon>());       //激活新攻击状态
+            PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Idle", Inventory.PrimaryWeapon[newWeaponNum].GetComponent<Weapon>());       //激活新攻击状态
 
             m_CurrentPrimaryWeaponNum = newWeaponNum;   //重新设置当前武器计数
         }
@@ -107,7 +114,7 @@ public class Player : MonoBehaviour
             Inventory.SecondaryWeapon[m_CurrentSecondaryWeaponNum].SetActive(false);
             Inventory.SecondaryWeapon[newWeaponNum].SetActive(true);      
 
-            SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Attack", Inventory.SecondaryWeapon[newWeaponNum].GetComponent<Weapon>());  
+            SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Idle", Inventory.SecondaryWeapon[newWeaponNum].GetComponent<Weapon>());  
 
             m_CurrentSecondaryWeaponNum = newWeaponNum;
         }
@@ -129,11 +136,11 @@ public class Player : MonoBehaviour
     }
 
 
-    private void Flip()
+    private void PlayerFlip()
     {
-        m_FacingNum = InputHandler.ProjectedMousePos.x < transform.position.x ? -1 : 1;     //如果鼠标坐标位于玩家左侧，则翻转玩家
+        FacingNum = InputHandler.ProjectedMousePos.x < transform.position.x ? -1 : 1;     //如果鼠标坐标位于玩家左侧，则翻转玩家
 
-        transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * m_FacingNum, transform.localScale.y, transform.localScale.z);      //用于翻转角色
+        m_PlayerFlip.DoFlip(FacingNum);
     }
     #endregion
 

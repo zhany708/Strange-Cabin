@@ -47,8 +47,6 @@ public class PlayerInputHandler : MonoBehaviour
 
     public void OnPrimaryAttackInput(InputAction.CallbackContext context) 
     {
-        m_MousePos = Camera.main.ScreenToWorldPoint(context.ReadValue<Vector2>());        //将鼠标坐标从相对相机改成相对世界
-
         if (context.started)    //按下鼠标左键时
         {
             AttackInputs[(int)CombatInputs.primary] = true;

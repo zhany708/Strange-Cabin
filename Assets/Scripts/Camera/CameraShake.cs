@@ -8,6 +8,9 @@ public class CameraShake : MonoBehaviour
 
     CinemachineBasicMultiChannelPerlin m_VirtualCameraNoise;
 
+    float m_Intensity;
+    bool m_IsShake =  false;
+
     void Start()
     {
         if (virtualCamera != null)
@@ -19,16 +22,29 @@ public class CameraShake : MonoBehaviour
 
     public void ShakeCamera(float intensity, float duration)    //震动函数
     {
-        if (m_VirtualCameraNoise != null)
+        if (m_VirtualCameraNoise != null && !m_IsShake)     //只有不在震动时才会开始震动
         {
-            m_VirtualCameraNoise.m_AmplitudeGain = intensity;
+            m_Intensity = intensity;
+            m_IsShake = true;
+
+            m_VirtualCameraNoise.m_AmplitudeGain = m_Intensity;
             StartCoroutine(StopShake(duration));
         }
     }
     
     IEnumerator StopShake(float duration)
     {
-        yield return new WaitForSeconds(duration);
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            m_VirtualCameraNoise.m_AmplitudeGain = Mathf.Lerp(m_Intensity, 0f, elapsed / duration);     //使震动强度逐渐降低，而不是突然变成0
+            yield return null;
+        }
+
         m_VirtualCameraNoise.m_AmplitudeGain = 0f;      //持续时间结束后取消震动
+
+        m_IsShake = false;
     }
 }

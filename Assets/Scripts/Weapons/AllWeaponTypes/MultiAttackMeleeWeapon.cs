@@ -17,8 +17,10 @@ public class MultiAttackMeleeWeapon : MeleeWeapon
         m_AttackCounterResetTimer = new Timer(m_AttackCounterResetCooldown);
     }
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
+
         m_AttackCounterResetTimer.Tick();   //持续对计时器进行计时
     }
 
@@ -47,8 +49,7 @@ public class MultiAttackMeleeWeapon : MeleeWeapon
 
         base.EnterWeapon();
 
-        baseAnimator.SetInteger("AttackCounter", CurrentAttackCounter);
-        weaponAnimator.SetInteger("AttackCounter", CurrentAttackCounter);
+        animator.SetInteger("AttackCounter", CurrentAttackCounter);
     }
 
     public override void ExitWeapon()

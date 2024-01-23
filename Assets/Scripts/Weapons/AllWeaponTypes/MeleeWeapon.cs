@@ -44,18 +44,14 @@ public class MeleeWeapon : Weapon
     {
         base.OnEnable();
 
-        baseAnimationEventHandler.OnStart += CheckMeleeAttack;      //将攻击函数添加进动画开始的事件
-        weaponAnimationEventHandler.OnStartMovement += HandleStartMovement;     //将开始移动函数添加进开始移动的事件
-        weaponAnimationEventHandler.OnStopMovement += HandleStopMovement;       //将停止移动添加进结束移动的事件
+        weaponAnimationEventHandler.OnStart += CheckMeleeAttack;      //将攻击函数添加进动画开始的事件
     }
 
     protected override void OnDisable()
     {
         base.OnDisable();
-
-        baseAnimationEventHandler.OnStart -= CheckMeleeAttack;
-        weaponAnimationEventHandler.OnStartMovement -= HandleStartMovement;
-        weaponAnimationEventHandler.OnStopMovement -= HandleStopMovement;
+   
+        weaponAnimationEventHandler.OnStart -= CheckMeleeAttack;
     }
 
 
@@ -73,7 +69,7 @@ public class MeleeWeapon : Weapon
             }
 
             item.Damage(details.DamageAmount);      //对被检测到碰撞体造成伤害
-            item.GetHit(Movement.FacingDirection);      //使被检测碰撞体面向玩家
+            //item.GetHit(Movement.FacingDirection);      //使被检测碰撞体面向玩家
         }
 
         foreach (IKnockbackable item in detectedKnockbackables.ToList())
@@ -111,17 +107,5 @@ public class MeleeWeapon : Weapon
         {
             detectedKnockbackables.Remove(knockbackable);    //如果检测到可被击退的碰撞体，则加进List
         }
-    }
-
-
-
-    public void HandleStartMovement()
-    {
-        Movement.SetVelocity(aggressiveWeaponData.MovementSpeed[CurrentAttackCounter], Movement.FacingDirection);       //使玩家攻击时获得移动补偿
-    }
-
-    public void HandleStopMovement()
-    {
-        Movement.SetVelocityZero();
     }
 }
