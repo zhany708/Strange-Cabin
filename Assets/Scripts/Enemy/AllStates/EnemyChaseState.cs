@@ -1,4 +1,5 @@
 using UnityEngine;
+using ZhangYu.Utilities;
 
 
 public class EnemyChaseState : EnemyState
@@ -13,7 +14,7 @@ public class EnemyChaseState : EnemyState
     {
         if (enemy.Parameter.Target != null)
         {
-            enemy.Movement.SetAnimationDirection(enemy.Parameter.Target.position, enemy.transform.position);       //使怪物朝向玩家
+            enemy.EnemyFlip.DoFlip( enemy.Movement.GetFlipNum(enemy.Parameter.Target.position, enemy.transform.position) );    //使怪物朝向玩家
 
             m_DistanceToPlayer = Vector2.Distance(enemy.transform.position, enemy.Parameter.Target.position);       //计算敌人与玩家的距离
         }

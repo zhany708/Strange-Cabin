@@ -23,13 +23,14 @@ public class Combat : CoreComponent, Idamageable, IKnockbackable    //用于管理受
         particleManager.StartParticleWithRandomRotation(m_DamageParticles);   //造成伤害时生成特效
     }
 
-    public void GetHit(Vector2 direction)
+    /*
+    public int GetHit(Vector2 direction)
     {
-        Movement.SetAnimationDirection(Vector2.zero, direction);
+        return Movement.GetFlipNum(direction, Vector2.zero);
 
         //Debug.Log(core.transform.parent.name + " Faced you!");
     }
-
+    */
 
 
     public void KnockBack(float strength, Vector2 direction)

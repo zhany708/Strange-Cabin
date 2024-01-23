@@ -65,19 +65,19 @@ public class Movement : CoreComponent   //用于管理移动
             FacingDirection = m_WorkSpace.normalized;
         }       
     }
+    #endregion
 
-
-
-    public void SetAnimationDirection(Vector2 faceDirection, Vector2 currentDirection)      //如果不需要减去当前坐标，则第二个参数用Vector2.Zero
+    #region Getters
+    public int GetFlipNum(Vector2 faceDirection, Vector2 currentDirection)      //如果不需要减去当前坐标，则第二个参数用Vector2.Zero
     {
         if (faceDirection != null)
         {
             Vector2 direction = (faceDirection - currentDirection).normalized;      //只需要方向
 
-            //播放朝向坐标的动画
-            core.Animator.SetFloat("MoveX", direction.x);
-            core.Animator.SetFloat("MoveY", direction.y);
+            int facingNum = direction.x < 0 ? -1 : 1;     //如果目标坐标位于当前坐标左侧，则翻转
+            return facingNum;
         }
+        return 0;
     }
     #endregion
 }

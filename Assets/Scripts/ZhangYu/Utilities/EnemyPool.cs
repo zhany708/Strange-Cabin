@@ -14,16 +14,15 @@ public class EnemyPool       //用于生成敌人的对象池
             return m_Instance;
         }
     }
-
     private static EnemyPool m_Instance;
 
-    private Dictionary<string, Queue<GameObject>> m_EnemyPool = new Dictionary<string, Queue<GameObject>>();
+    Dictionary<string, Queue<GameObject>> m_EnemyPool = new Dictionary<string, Queue<GameObject>>();
 
-    private GameObject m_Pool;
+    GameObject m_Pool;
 
 
 
-    public GameObject GetObject(GameObject prefab)
+    public GameObject GetObject(GameObject prefab, Vector2 spawnPos)
     {
         GameObject _object;
 
@@ -37,24 +36,25 @@ public class EnemyPool       //用于生成敌人的对象池
                 m_Pool = new GameObject("EnemyPool");   //生成储存所有池对象的总父物体
             }
 
-            GameObject m_ChildPool = GameObject.Find(prefab.name + "Pool");
-            if (!m_ChildPool)
+            GameObject m_Child = GameObject.Find(prefab.name);
+            if (!m_Child)
             {
-                m_ChildPool = new GameObject(prefab.name + "Pool");     //生成每个池对象的父物体
-                m_ChildPool.transform.SetParent(m_Pool.transform);      //将每个父物体设置为总父物体的子物体
+                m_Child = new GameObject(prefab.name);     //生成每个池对象的父物体
+                m_Child.transform.SetParent(m_Pool.transform);      //将每个父物体设置为总父物体的子物体
             }
 
-            _object.transform.SetParent(m_ChildPool.transform);     //将每个物体设置为其父物体的子物体
+            _object.transform.SetParent(m_Child.transform);     //将每个物体设置为其父物体的子物体
         }
 
         _object = m_EnemyPool[prefab.name].Dequeue();       //按照预制体名获取对象池中的预制体
+        _object.GetComponentInChildren<Enemy>().SetSpawnPos(spawnPos);      //将生成坐标传给敌人，好确定巡逻坐标
         _object.SetActive(true); 
         return _object;       
     }
 
     public void PushObject(GameObject prefab)
     {
-        string _name = prefab.name.Replace("(Clone", string.Empty);    //将克隆后缀替换成空
+        string _name = prefab.name.Replace("(Clone)", string.Empty);    //将克隆后缀替换成空
 
         if (!m_EnemyPool.ContainsKey(_name))
         {

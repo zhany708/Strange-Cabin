@@ -36,8 +36,6 @@ namespace ZhangYu.Utilities     //张煜文件夹用于以后所有游戏都可能会用到的函数，
             {
                 List<Vector2> newPos = new List<Vector2>();
 
-                bool isDone = false;
-
                 for (int i = 0; i < num; i++)       //先将所有坐标生成出来
                 {
                     newPos.Add(GenerateSingleRandomPos());
@@ -46,9 +44,11 @@ namespace ZhangYu.Utilities     //张煜文件夹用于以后所有游戏都可能会用到的函数，
 
                 if (num > 1)    //当坐标数多于1个时检查是否有重复坐标
                 {
+                    bool isDone = false;
+
                     while (!isDone)
                     {
-                        isDone = true;
+                        isDone = true;      //如果未有坐标重合则退出循环
 
                         for (int i = 0; i < num - 1; i++)   //从第一个坐标开始检查，持续到倒数第二个坐标（最后一个坐标无需检查）
                         {
@@ -56,7 +56,7 @@ namespace ZhangYu.Utilities     //张煜文件夹用于以后所有游戏都可能会用到的函数，
                             {
                                 if (IsOverlap(newPos[i], newPos[j]))
                                 {
-                                    newPos[i] = GenerateSingleRandomPos();    //如果重复了，则重新生成坐标
+                                    newPos[i] = GenerateSingleRandomPos();    //如果重复了，则重新生成坐标，并进行新的循环
 
                                     isDone = false;
                                 }
@@ -76,7 +76,7 @@ namespace ZhangYu.Utilities     //张煜文件夹用于以后所有游戏都可能会用到的函数，
 
         private bool IsOverlap(Vector2 firstPos, Vector2 secondPos)     //检查两个坐标是否几乎重合
         {
-            if ( (secondPos.x - firstPos.x <= Mathf.Abs(0.5f)) && (secondPos.y - firstPos.y <= Mathf.Abs(0.5f)) )
+            if ( (Mathf.Abs(secondPos.x - firstPos.x) <= 1f) && (Mathf.Abs(secondPos.y - firstPos.y) <= 1f) )   //如果两个坐标的x和y的差值都小于1则视为重合
             {
                 return true;
             }

@@ -22,7 +22,8 @@ public class EnemyPatrolState : EnemyState
         base.LogicUpdate();
 
         m_PatrolTimer += Time.deltaTime;
-        Movement.SetAnimationDirection(m_RandomPosition, enemy.transform.position);      //朝向巡逻点的方向
+
+        enemy.EnemyFlip.DoFlip( Movement.GetFlipNum(m_RandomPosition, enemy.transform.position) );  //朝向巡逻点的方向
 
         if (enemy.Parameter.Target != null && !enemy.CheckOutside())
         {
