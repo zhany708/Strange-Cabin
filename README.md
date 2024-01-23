@@ -10,4 +10,4 @@ Programmer: Zhang Yu(Steven)
 
 Game Designer: Zhang Yu, Guo Baiting
 
-Art Designer: Zhang Yu, Yang Jianming(Jimmy), and a lot more authors
+Art Designer: Zhang Yu, Yang Jianming(Jimmy), Hou Fan(Steven) and a lot more authors
