@@ -25,7 +25,7 @@ public class EnemyParameter
 
 public class Enemy : MonoBehaviour
 {
-    #region State Variables
+    #region FSM States
     public EnemyStateMachine StateMachine { get; private set; }
     public EnemyIdleState IdleState { get; private set; }
     public EnemyPatrolState PatrolState { get; private set; }
@@ -33,9 +33,6 @@ public class Enemy : MonoBehaviour
     public EnemyAttackState AttackState { get; protected set; }
     public EnemyHitState HitState { get; private set; }
     public EnemyDeathState DeathState { get; protected set;}
-
-    [SerializeField]
-    protected SO_EnemyData enemyData;
     #endregion
 
     #region Components
@@ -44,7 +41,6 @@ public class Enemy : MonoBehaviour
 
     public Movement Movement => m_Movement ? m_Movement : Core.GetCoreComponent(ref m_Movement);   //检查m_Movement是否为空，不是的话则返回它，是的话则调用GetCoreComponent函数以获取组件
     private Movement m_Movement;
-
 
     /*  基础调用核心组件的方法
     public EnemyDeath Death
@@ -59,10 +55,18 @@ public class Enemy : MonoBehaviour
     private EnemyDeath m_Death;
     */
 
-
     public Timer AttackTimer;
     public RandomPosition PatrolRandomPos;
     public Flip EnemyFlip;
+
+
+
+    [SerializeField]
+    protected SO_EnemyData enemyData;
+
+
+
+    EnemyDeath m_Death;
     #endregion
 
     #region Variables
@@ -70,7 +74,7 @@ public class Enemy : MonoBehaviour
 
     Vector2 SpawnPos;
     float m_LastHitTime;        //上次受击时间
-    bool m_IsReactivate = false;
+    bool m_IsReactivate = false;    //判断敌人是否为重新激活
     #endregion
 
     #region Unity Callback Functions
@@ -90,9 +94,10 @@ public class Enemy : MonoBehaviour
         DeathState = new EnemyDeathState(this, StateMachine, enemyData, "Death");       
     }
 
-
     protected virtual void Start()      //只在第一帧运行前运行这个函数
     {
+        m_Death = GetComponentInChildren<EnemyDeath>();
+
         StateMachine.Initialize(IdleState);     //初始化状态为闲置
     }
 
@@ -135,7 +140,7 @@ public class Enemy : MonoBehaviour
 
 
         CanAttack = true;   //游戏开始时将可攻击设置为true
-        AttackTimer.OnTimerDone += SetCanAttackTrue;        //触发事件（计时器到达目标时间）
+        AttackTimer.OnTimerDone += SetCanAttackTrue;        //触发事件，使敌人可以重新攻击
 
         if (m_IsReactivate)     //敌人重新激活后才会在这里初始化闲置状态，否则第一次生成时如果在这初始化会因为脚本的实施顺序出现null错误
         {
@@ -177,6 +182,8 @@ public class Enemy : MonoBehaviour
     {
         if (transform.parent != null)
         {
+            m_Death.DoorController.OpenDoors();     //判断是否满足开门条件
+
             EnemyPool.Instance.PushObject(transform.parent.gameObject);      //将敌人的父物体放回池中，也将放回父物体的所有子物体
         }
     }
