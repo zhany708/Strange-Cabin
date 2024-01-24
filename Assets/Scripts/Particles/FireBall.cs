@@ -45,7 +45,6 @@ public class FireBall : MonoBehaviour
     {
         Idamageable damageable = other.GetComponent<Idamageable>();
         IKnockbackable knockbackable = other.GetComponent<IKnockbackable>();
-        Flip hitFlip = other.GetComponent<Flip>();
 
         if (damageable != null)
         {

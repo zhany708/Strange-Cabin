@@ -24,18 +24,13 @@ public class MultiAttackMeleeWeapon : MeleeWeapon
         m_AttackCounterResetTimer.Tick();   //持续对计时器进行计时
     }
 
-    protected override void OnEnable()
+    protected void OnEnable()
     {
-        base.OnEnable();
-
         m_AttackCounterResetTimer.OnTimerDone += ResetAttackCounter;    //触发事件（计时器到达目标时间）时重置连击
     }
 
-
-    protected override void OnDisable()
+    protected void OnDisable()
     {
-        base.OnDisable();
-
         m_AttackCounterResetTimer.OnTimerDone -= ResetAttackCounter;    //触发事件（计时器到达目标时间）时重置连击
     }
 

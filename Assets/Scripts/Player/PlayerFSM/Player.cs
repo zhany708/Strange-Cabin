@@ -140,7 +140,7 @@ public class Player : MonoBehaviour
     {
         FacingNum = InputHandler.ProjectedMousePos.x < transform.position.x ? -1 : 1;     //如果鼠标坐标位于玩家左侧，则翻转玩家
 
-        m_PlayerFlip.DoFlip(FacingNum);
+        m_PlayerFlip.FlipX(FacingNum);
     }
     #endregion
 
