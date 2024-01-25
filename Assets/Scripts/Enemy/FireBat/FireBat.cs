@@ -32,7 +32,7 @@ public class FireBat : Enemy
 
 
 
-        FireBall fireBall = FireBallObject.GetComponent<FireBall>();        //调用火球脚本
-        fireBall.Launch(target.position + Vector3.up * 0.5f - FireBallObject.transform.position, 150);        //朝角色中心方向发射火球
+        EnemyBullet fireBall = FireBallObject.GetComponent<EnemyBullet>();        //调用火球脚本
+        fireBall.SetSpeed(target.position + Vector3.up * 0.5f - FireBallObject.transform.position);        //朝角色中心方向发射火球
     }
 }

@@ -182,8 +182,11 @@ public class Enemy : MonoBehaviour
     {
         if (transform.parent != null)
         {
-            m_Death.DoorController.OpenDoors();     //判断是否满足开门条件
-
+            if (m_Death.DoorController != null)
+            {
+                m_Death.DoorController.OpenDoors();     //判断是否满足开门条件
+            }
+            
             EnemyPool.Instance.PushObject(transform.parent.gameObject);      //将敌人的父物体放回池中，也将放回父物体的所有子物体
         }
     }

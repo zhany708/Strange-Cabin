@@ -22,18 +22,17 @@ public class FireBatAttackState : EnemyAttackState
 
     public override void LogicUpdate()
     {
+        /*
         if (Combat.IsHit)     //¼ì²âÊÇ·ñÊÜ»÷
         {
             stateMachine.ChangeState(enemy.HitState);
         }
+        */
 
-        if (core.AnimatorInfo.IsName("Attack"))
+        if (core.AnimatorInfo.IsName("Attack") && core.AnimatorInfo.normalizedTime >= 0.95f)     //²¥·ÅÍê¹¥»÷¶¯»­Ôò·¢Éä»ğÇòÇÒÇĞ»»³É×·»÷×´Ì¬
         {
-            if (core.AnimatorInfo.normalizedTime >= 0.95f)     //²¥·ÅÍê¹¥»÷¶¯»­Ôò·¢Éä»ğÇòÇÒÇĞ»»³É×·»÷×´Ì¬
-            {
-                m_FireBat.FireBallLaunch(m_Target);
-                stateMachine.ChangeState(enemy.ChaseState);
-            }
+            m_FireBat.FireBallLaunch(m_Target);
+            stateMachine.ChangeState(enemy.ChaseState);
         }
     }
 }
