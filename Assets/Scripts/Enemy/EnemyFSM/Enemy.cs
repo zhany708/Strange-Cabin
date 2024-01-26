@@ -171,7 +171,7 @@ public class Enemy : MonoBehaviour
         return Parameter.Target.position.x < minX || Parameter.Target.position.x > maxX || Parameter.Target.position.y < minY || Parameter.Target.position.y > maxY;
     }
 
-    private void SetCanAttackTrue()
+    private void SetCanAttackTrue()     //用于Action，由于不能传参数，因此不能用下面Setters里的函数
     {
         CanAttack = true;
     }
@@ -184,7 +184,7 @@ public class Enemy : MonoBehaviour
         {
             if (m_Death.DoorController != null)
             {
-                m_Death.DoorController.OpenDoors();     //判断是否满足开门条件
+                m_Death.DoorController.CheckIfOpenDoors();     //判断是否满足开门条件
             }
             
             EnemyPool.Instance.PushObject(transform.parent.gameObject);      //将敌人的父物体放回池中，也将放回父物体的所有子物体
@@ -237,9 +237,9 @@ public class Enemy : MonoBehaviour
 
     #region Setters
     //设置成员变量
-    public void SetCanAttackFalse()
+    public void SetCanAttack(bool isTrue)
     {
-        CanAttack = false;
+        CanAttack = isTrue;
     }
 
     public void SetLastHitTime(float currentTime)

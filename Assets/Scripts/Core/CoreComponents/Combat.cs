@@ -43,9 +43,9 @@ public class Combat : CoreComponent, Idamageable, IKnockbackable    //用于管理受
     }
 
     #region Setters
-    public void SetIsHitFalse()
+    public void SetIsHit(bool isTrue)
     {
-        IsHit = false;
+        IsHit = isTrue;
     }
     #endregion
 }

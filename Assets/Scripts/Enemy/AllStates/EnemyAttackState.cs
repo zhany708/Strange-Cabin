@@ -25,8 +25,8 @@ public class EnemyAttackState : EnemyState
     {
         base.Exit();
 
-        Combat.SetIsHitFalse();     //如果没有这行代码，那么敌人在攻击状态中被击中的话，会强制在攻击状态结束后进入受击状态
-        enemy.SetCanAttackFalse();
+        enemyCombat.SetIsHit(false);     //如果没有这行代码，那么敌人在攻击状态中被击中的话，会强制在攻击状态结束后进入受击状态
+        enemy.SetCanAttack(false);
         enemy.AttackTimer.StartTimer();     //攻击结束后开始计时
     }
 }

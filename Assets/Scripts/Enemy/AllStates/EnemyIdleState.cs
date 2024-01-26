@@ -13,7 +13,7 @@ public class EnemyIdleState : EnemyState
     {
         base.Enter();
 
-        Movement.SetVelocityZero();       //将速度归零
+        enemyMovement.SetVelocityZero();       //将速度归零
     }
 
     public override void LogicUpdate()

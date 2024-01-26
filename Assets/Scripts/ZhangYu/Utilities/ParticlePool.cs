@@ -17,9 +17,9 @@ public class ParticlePool       //用于子弹，特效等的对象池
 
     private static ParticlePool m_Instance;
 
-    private Dictionary<string, Queue<GameObject>> m_ParticlePool = new Dictionary<string, Queue<GameObject>>();
+    private Dictionary<string, Queue<GameObject>> m_ParticlePool = new Dictionary<string, Queue<GameObject>>();     //使用字典对不同的物体进行分开存储
 
-    private GameObject m_Pool;
+    private GameObject m_Pool;      //所有生成物体的根父物体
 
 
 
@@ -54,14 +54,17 @@ public class ParticlePool       //用于子弹，特效等的对象池
 
     public void PushObject(GameObject prefab)
     {
-        string _name = prefab.name.Replace("(Clone)", string.Empty);    //将克隆后缀替换成空
-
-        if (!m_ParticlePool.ContainsKey(_name))
+        if (prefab != null)
         {
-            m_ParticlePool.Add(_name, new Queue<GameObject>());    //查找物体名是否存在于对象池，若不存在则新生成一个
-        }
-        m_ParticlePool[_name].Enqueue(prefab);     //生成后将物体放入对象池
+            string _name = prefab.name.Replace("(Clone)", string.Empty);    //将克隆后缀替换成空
 
-        prefab.SetActive(false);    //放入后取消激活
+            if (!m_ParticlePool.ContainsKey(_name))
+            {
+                m_ParticlePool.Add(_name, new Queue<GameObject>());    //查找物体名是否存在于对象池，若不存在则新生成一个
+            }
+            m_ParticlePool[_name].Enqueue(prefab);     //生成后将物体放入对象池
+
+            prefab.SetActive(false);    //放入后取消激活
+        }      
     }
 }

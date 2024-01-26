@@ -4,7 +4,7 @@ using UnityEngine;
 public class EnemyState
 {
     protected Core core;
-    protected Movement Movement
+    protected Movement enemyMovement
     {
         get
         {
@@ -16,7 +16,7 @@ public class EnemyState
     private Movement m_Movement;
 
 
-    protected Combat Combat
+    protected Combat enemyCombat
     {
         get
         {
@@ -27,7 +27,7 @@ public class EnemyState
     }
     private Combat m_Combat;
 
-    protected Stats Stats
+    protected Stats enemyStats
     {
         get
         {
@@ -67,7 +67,7 @@ public class EnemyState
 
     public virtual void Enter()
     {
-        if (!Movement || !Combat || !Stats)
+        if (!enemyMovement || !enemyCombat || !enemyStats)
         {
             Debug.Log("Something is wrong in the EnemyState!");
         }
@@ -80,7 +80,7 @@ public class EnemyState
 
     public virtual void LogicUpdate()
     {
-        if (Combat.IsHit && !isHit)
+        if (enemyCombat.IsHit && !isHit)
         {
             stateMachine.ChangeState(enemy.HitState);
         }
@@ -93,12 +93,12 @@ public class EnemyState
             float amount = 0.3f;
             amount += Time.deltaTime;
 
-            Movement.ReduceVelocity(amount);    //持续减少移动速度
+            enemyMovement.ReduceVelocity(amount);    //持续减少移动速度
         }
 
         else
         {
-            Movement.SetVelocityZero();     //受击结束后使敌人停止移动，也防止玩家碰撞敌人后敌人持续移动
+            enemyMovement.SetVelocityZero();     //受击结束后使敌人停止移动，也防止玩家碰撞敌人后敌人持续移动
         }
     }
 

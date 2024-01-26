@@ -18,8 +18,8 @@ public class FireBat : Enemy
 
     public void FireBallLaunch(Transform target)
     {
-        Vector2 attackX = Core.Animator.GetFloat("MoveX") > Mathf.Epsilon ? Vector2.right : Vector2.left;      //根据动画参数MoveX判断敌人朝向
-        float deviation = Mathf.Abs(Core.Animator.GetFloat("MoveY")) >= Mathf.Abs(Core.Animator.GetFloat("MoveX")) ? 0f : 0.2f;     //偏离参数（根据敌人面朝方向决定偏离嘴部多少）
+        Vector2 attackX = transform.localScale.x >= 0 ? Vector2.right : Vector2.left;      //根据动画参数MoveX判断敌人朝向
+        float deviation = 0.2f;     //偏离参数（偏离嘴部多少）
         Vector2 attackPosition = Movement.Rigidbody2d.position + Vector2.up * 0.8f + attackX * deviation;       //火球生成位置在y轴上应位于头部，x轴上应偏离敌人的位置（嘴部发射）
 
 

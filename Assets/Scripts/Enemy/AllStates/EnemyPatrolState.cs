@@ -23,7 +23,7 @@ public class EnemyPatrolState : EnemyState
 
         m_PatrolTimer += Time.deltaTime;
 
-        enemy.EnemyFlip.FlipX( Movement.GetFlipNum(m_RandomPosition, enemy.transform.position) );  //朝向巡逻点的方向
+        enemy.EnemyFlip.FlipX( enemyMovement.GetFlipNum(m_RandomPosition, enemy.transform.position) );  //朝向巡逻点的方向
 
         if (enemy.Parameter.Target != null && !enemy.CheckOutside())
         {

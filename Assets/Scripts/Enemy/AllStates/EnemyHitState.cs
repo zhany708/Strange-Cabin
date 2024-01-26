@@ -17,7 +17,7 @@ public class EnemyHitState : EnemyState
 
     public override void LogicUpdate()
     {
-        if (Stats.GetCurrentHealth() == 0)
+        if (enemyStats.GetCurrentHealth() == 0)
         {
             stateMachine.ChangeState(enemy.DeathState);
         }
@@ -32,7 +32,7 @@ public class EnemyHitState : EnemyState
 
             else if (core.AnimatorInfo.normalizedTime >= 0.5f)
             {
-                Movement.SetVelocityZero();     //动画播到50%时停止移动
+                enemyMovement.SetVelocityZero();     //动画播到50%时停止移动
             }        
         }
     }
@@ -41,7 +41,7 @@ public class EnemyHitState : EnemyState
     {
         base.Exit();
 
-        Combat.SetIsHitFalse();
+        enemyCombat.SetIsHit(false);
         isHit = false;
     }
 }
