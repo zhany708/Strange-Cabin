@@ -6,30 +6,49 @@ public class RootRoomController : MonoBehaviour
 {
     public GameObject[] AllRooms;
 
+    public bool CanGenerateLeftDoor;
+    public bool CanGenerateRightDoor;
+    public bool CanGenerateUpDoor;
+    public bool CanGenerateDownDoor;
 
 
-
-    CinemachineVirtualCamera playerCamera;
+    CinemachineVirtualCamera m_PlayerCamera;
     Collider2D m_CameraConfiner;
 
     DoorController m_DoorInsideThisRoom;
+    RoomGenerator m_RoomGenerator;
 
 
+    bool m_HasGeneratedRoom = false;
 
-
-
+    
 
 
 
 
     private void Awake()
     {
-        playerCamera = FindObjectOfType<CinemachineVirtualCamera>();
+        m_PlayerCamera = FindObjectOfType<CinemachineVirtualCamera>();
         m_CameraConfiner = transform.Find("CameraConfiner").GetComponent<Collider2D>();
 
         m_DoorInsideThisRoom = GetComponentInChildren<DoorController>();
+        m_RoomGenerator = GameObject.Find("RoomGenerator").GetComponent<RoomGenerator>();
     }
 
+    private void Start()
+    {
+        /*
+        CanGenerateLeftDoor = true;
+        CanGenerateRightDoor = true;
+        CanGenerateUpDoor = true;
+        CanGenerateDownDoor = true;
+        */
+    }
+
+    private void OnEnable()
+    {
+        m_RoomGenerator.GeneratedRoomPos.Add(transform.position);   //æ¯å½“æˆ¿é—´æ¿€æ´»åå°†å½“å‰åæ ‡åŠ è¿›List
+    }
 
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -38,10 +57,13 @@ public class RootRoomController : MonoBehaviour
         {
             //Debug.Log("Player entered!");
 
-            CinemachineConfiner2D confiner = playerCamera.GetComponent<CinemachineConfiner2D>();
-            confiner.m_BoundingShape2D = m_CameraConfiner;      //Íæ¼Ò½øÈë·¿¼äºó¸ü¸ÄĞéÄâÏà»úµÄÏà»úÅö×²¿ò
+            CinemachineConfiner2D confiner = m_PlayerCamera.GetComponent<CinemachineConfiner2D>();
+            confiner.m_BoundingShape2D = m_CameraConfiner;      //ï¿½ï¿½Ò½ï¿½ï¿½ë·¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²ï¿½ï¿½
 
-            //GenerateRoom();
+            if (!m_HasGeneratedRoom)
+            {
+                GenerateRoom();
+            }         
         }
     }
 
@@ -49,58 +71,13 @@ public class RootRoomController : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            m_DoorInsideThisRoom.RoomTrigger.enabled = true;    //Íæ¼ÒÀë¿ª·¿¼äºóÖØĞÂ¼¤»îÃÅµÄÅö×²Æ÷£¬´Ó¶øÈÃÍæ¼ÒÖ®ºóÔÙ½øÈëÊ±Éú³ÉµĞÈË
+            m_DoorInsideThisRoom.RoomTrigger.enabled = true;    //ï¿½ï¿½ï¿½ï¿½ë¿ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½Åµï¿½ï¿½ï¿½×²ï¿½ï¿½ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö®ï¿½ï¿½ï¿½Ù½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Éµï¿½ï¿½ï¿½
 
-            if (m_DoorInsideThisRoom.HasGeneratedEvent)     //¼ì²é·¿¼äÊÇ·ñÉú³É¹ıÊÂ¼ş
+            if (m_DoorInsideThisRoom.HasGeneratedEvent)     //ï¿½ï¿½é·¿ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½É¹ï¿½ï¿½Â¼ï¿½
             {
-                m_DoorInsideThisRoom.SetHasGeneratedEvent(false);       //½«¼ì²é·¿¼äÓĞÎŞÉú³ÉÊÂ¼şµÄ²¼¶ûÉèÖÃÎªfalse
-                m_DoorInsideThisRoom.EventManagerAtDoor.DeactivateEventObject();        //Íæ¼ÒÀë¿ª·¿¼äºóÏú»ÙÊÂ¼şÎïÌå
+                m_DoorInsideThisRoom.SetHasGeneratedEvent(false);       //ï¿½ï¿½ï¿½ï¿½é·¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½Ä²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªfalse
+                m_DoorInsideThisRoom.EventManagerAtDoor.DeactivateEventObject();        //ï¿½ï¿½ï¿½ï¿½ë¿ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½
             }            
-        }
-    }
-
-
-
-    
-    private void GenerateRoom()
-    {
-        Transform doors = transform.Find("Doors");      //ÓÉÓÚTransform.FindÖ»ÄÜÕÒµ½Ò»²ã×ÓÎïÌå£¬Òò´ËÈç¹ûĞèÒªÑ°ÕÒ×ÓÎïÌåµÄ×ÓÎïÌå£¬ÔòĞèÒªµ÷ÓÃÁ½´Î
-
-        Transform leftDoor = doors.transform.Find("LeftDoor");
-        Transform rightDoor = doors.transform.Find("RightDoor");
-        Transform upDoor = doors.transform.Find("UpDoor");
-        Transform downDoor = doors.transform.Find("DownDoor");
-
-
-        if (leftDoor != null)
-        {
-            //Debug.Log("LeftDoor is here!");
-            Vector2 roomPos = new Vector2(transform.position.x - 19.2f, transform.position.y);
-
-            GameObject newRoom = ParticlePool.Instance.GetObject(AllRooms[0]);
-            newRoom.transform.position = roomPos;
-
-        }
-        if (rightDoor != null)
-        {
-            Vector2 roomPos = new Vector2(transform.position.x + 19.2f, transform.position.y);
-
-            GameObject newRoom = ParticlePool.Instance.GetObject(AllRooms[0]);
-            newRoom.transform.position = roomPos;
-        }
-        if (upDoor != null)
-        {
-            Vector2 roomPos = new Vector2(transform.position.x, transform.position.y + 10.8f);
-
-            GameObject newRoom = ParticlePool.Instance.GetObject(AllRooms[0]);
-            newRoom.transform.position = roomPos;
-        }
-        if (downDoor != null)
-        {
-            Vector2 roomPos = new Vector2(transform.position.x, transform.position.y - 10.8f);
-
-            GameObject newRoom = ParticlePool.Instance.GetObject(AllRooms[0]);
-            newRoom.transform.position = roomPos;
         }
     }
 }
