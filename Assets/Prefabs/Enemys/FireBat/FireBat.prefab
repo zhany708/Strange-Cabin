@@ -157,7 +157,7 @@ SpriteRenderer:
   m_SortingLayerID: -781108837
   m_SortingLayer: 6
   m_SortingOrder: 0
-  m_Sprite: {fileID: -27920706, guid: 05fe41fb5f5e42e42a819a5adf5991c2, type: 3}
+  m_Sprite: {fileID: -717128890, guid: 54a91ef45f3c6bc4ab22520306e86dbe, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -228,7 +228,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41cf7941033749f4189941c209f9bb1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyData: {fileID: 11400000, guid: b976abff7f7a6cc458930534620c0c9f, type: 2}
   Parameter:
     PatrolPoints:
     - {fileID: 0}
@@ -238,6 +237,7 @@ MonoBehaviour:
     - {fileID: 0}
     - {fileID: 0}
     AttackPoint: {fileID: 872436287267711045}
+  enemyData: {fileID: 11400000, guid: b976abff7f7a6cc458930534620c0c9f, type: 2}
   FireBallPrefab: {fileID: 7543535387727977455, guid: 2a434e8d5c6f0a84ea786f6b15e02df8, type: 3}
 --- !u!1 &4393231941160576364
 GameObject:
