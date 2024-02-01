@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using ZhangYu.Utilities;
 
 public class PlayerBullet : MonoBehaviour
 {
@@ -9,7 +8,12 @@ public class PlayerBullet : MonoBehaviour
 
     protected Rigidbody2D rigidBody2D;
 
+
+
     GunWeapon m_Gun;
+
+    float m_ExistTimer;
+    float m_CurrentTime;
 
 
 
@@ -20,16 +24,25 @@ public class PlayerBullet : MonoBehaviour
 
     private void Update()
     {
-        if (transform.position.magnitude >= 30f)        //经过一段距离后自我销毁
+        m_CurrentTime += Time.deltaTime;
+
+        if (m_CurrentTime - m_ExistTimer >= 4)      //子弹生成4秒后强制销毁子弹
         {
-            ParticlePool.Instance.PushObject(gameObject);
+            DestroyBullet();
         }
     }
+
+    private void OnEnable()
+    {
+        m_ExistTimer = Time.time;
+        m_CurrentTime = Time.time;
+    }
+
 
 
     private void OnCollisionEnter2D(Collision2D other)
     {
-        ParticlePool.Instance.PushObject(gameObject);       //使子弹碰到其他碰撞体（墙壁，家具等）时自毁
+        DestroyBullet();       //使子弹碰到其他碰撞体（墙壁，家具等）时自毁
     }
 
     protected virtual void OnTriggerEnter2D(Collider2D other)
@@ -42,8 +55,9 @@ public class PlayerBullet : MonoBehaviour
             //damageable.GetHit(m_AttackDirection);
         }
 
-        ParticlePool.Instance.PushObject(gameObject);
+        DestroyBullet();
     }
+
 
 
 
@@ -56,5 +70,13 @@ public class PlayerBullet : MonoBehaviour
     public void SetWeapon(GunWeapon thisWeapon)
     {
         m_Gun = thisWeapon;
+    }
+
+
+
+
+    private void DestroyBullet()
+    {
+        ParticlePool.Instance.PushObject(gameObject);
     }
 }

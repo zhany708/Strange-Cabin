@@ -1,5 +1,4 @@
 using System;
-using UnityEditorInternal;
 using UnityEngine;
 using ZhangYu.Utilities;
 
@@ -42,6 +41,9 @@ public class Enemy : MonoBehaviour
     public Movement Movement => m_Movement ? m_Movement : Core.GetCoreComponent(ref m_Movement);   //检查m_Movement是否为空，不是的话则返回它，是的话则调用GetCoreComponent函数以获取组件
     private Movement m_Movement;
 
+    public Combat Combat => m_Combat ? m_Combat : Core.GetCoreComponent(ref m_Combat);   //检查m_Movement是否为空，不是的话则返回它，是的话则调用GetCoreComponent函数以获取组件
+    private Combat m_Combat;
+
     /*  基础调用核心组件的方法
     public EnemyDeath Death
     {
@@ -81,8 +83,8 @@ public class Enemy : MonoBehaviour
     private void Awake()    //最早实施的函数（只实施一次）
     {  
         Core = GetComponentInChildren<Core>();      //从子物体那调用Core脚本
+        Core.SetParameters(enemyData.MaxHealth, enemyData.Defense, enemyData.HitResistance);    //设置参数
 
-        
         StateMachine = new EnemyStateMachine();
 
         //初始化各状态
@@ -142,6 +144,7 @@ public class Enemy : MonoBehaviour
         CanAttack = true;   //游戏开始时将可攻击设置为true
         AttackTimer.OnTimerDone += SetCanAttackTrue;        //触发事件，使敌人可以重新攻击
 
+
         if (m_IsReactivate)     //敌人重新激活后才会在这里初始化闲置状态，否则第一次生成时如果在这初始化会因为脚本的实施顺序出现null错误
         {
             StateMachine.Initialize(IdleState);
@@ -152,6 +155,7 @@ public class Enemy : MonoBehaviour
     {
         Movement.Rigidbody2d.constraints = RigidbodyConstraints2D.FreezeRotation;   //重新激活敌人后只冻结Z轴的旋转，因为敌人死亡时被禁止所有移动
         Movement.SetVelocityZero();     //取消激活后将刚体速度重置，防止报错
+        Combat.SetIsHit(false);     //敌人死亡后设置Combat中的受击布尔为false，防止重新激活后直接进入受击状态
 
         m_IsReactivate = true;
 

@@ -50,8 +50,7 @@ public class CoreComponent : MonoBehaviour
             Debug.Log("Something is wrong in the CoreComponent!");
         }
 
-        core.Addcomponent(this);    //将所有需要运用LogicUpdate函数的组件加进List
-        
+        core.Addcomponent(this);    //将所有需要运用LogicUpdate函数的组件加进List     
     }
 
 

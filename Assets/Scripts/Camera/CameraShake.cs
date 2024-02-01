@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class CameraShake : MonoBehaviour
 {
-    public CinemachineVirtualCamera virtualCamera;
-
+    CinemachineVirtualCamera m_PlayerCamera;
     CinemachineBasicMultiChannelPerlin m_VirtualCameraNoise;
 
     float m_Intensity;
@@ -13,9 +12,10 @@ public class CameraShake : MonoBehaviour
 
     void Start()
     {
-        if (virtualCamera != null)
+        if (m_PlayerCamera != null)
         {
-            m_VirtualCameraNoise = virtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();     //调用震动组件
+            m_PlayerCamera = GetComponent<CinemachineVirtualCamera>();
+            m_VirtualCameraNoise = m_PlayerCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();     //调用震动组件
         }
     }
 

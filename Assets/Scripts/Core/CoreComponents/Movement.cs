@@ -60,9 +60,9 @@ public class Movement : CoreComponent   //用于管理移动
     {
         Rigidbody2d.velocity = m_WorkSpace;
 
-        if (m_WorkSpace != Vector2.zero)        //防止玩家停止移动后角色固定朝向上
+        if (m_WorkSpace != Vector2.zero)        
         {
-            FacingDirection = m_WorkSpace.normalized;
+            FacingDirection = m_WorkSpace.normalized;   //设置角色的朝向方向
         }       
     }
     #endregion

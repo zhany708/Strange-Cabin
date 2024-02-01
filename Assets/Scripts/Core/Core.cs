@@ -5,12 +5,19 @@ using System.Linq;
 public class Core : MonoBehaviour
 {
     public Animator Animator { get; private set; }
-
     public AnimatorStateInfo AnimatorInfo { get; private set; }
-    
-   
+
+    public float MaxHealth { get; private set; }
+    public float Defense { get; private set; }
+    public float HitResistance { get; private set; }     //击退抗性
+
 
     private readonly List<CoreComponent> m_CoreComponents = new List<CoreComponent>();      //将所有Core组件加进去。readonly用于保护List，防止运行时不小心重新赋值
+
+
+
+
+
 
     private void Awake()
     {
@@ -24,6 +31,11 @@ public class Core : MonoBehaviour
         }
         
     }
+
+
+
+
+
 
     public void LogicUpdate()
     {
@@ -65,4 +77,14 @@ public class Core : MonoBehaviour
         value = GetCoreComponent<T>();
         return value;       //返还组件的参考
     }
+
+
+    #region Setters
+    public void SetParameters(float maxHealth, float defense, float hitResistamce)  //设置参数，以供CoreComponent中的组件使用
+    {
+        MaxHealth = maxHealth;
+        Defense = defense;
+        HitResistance = hitResistamce;
+    }
+    #endregion
 }

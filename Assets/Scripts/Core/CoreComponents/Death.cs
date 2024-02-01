@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class Death : CoreComponent      //如果需要不同的死亡效果，则新建一个脚本，然会继承此脚本
 {
-    //[SerializeField] private GameObject[] m_DeathParticles;
 
 
 
@@ -21,13 +20,6 @@ public class Death : CoreComponent      //如果需要不同的死亡效果，则新建一个脚本
 
     public virtual void Die()
     {
-        /*
-        foreach (var particle in m_DeathParticles)
-        {
-            m_Manager.StartParticles(particle);
-        }
-        */
-
         //core.transform.parent.gameObject.SetActive(false);  //禁用游戏物体
 
         Movement.Rigidbody2d.constraints = RigidbodyConstraints2D.FreezeAll;        //防止死亡后物体还能接着移动

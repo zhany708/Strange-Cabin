@@ -6,12 +6,17 @@ public class Combat : CoreComponent, Idamageable, IKnockbackable    //用于管理受
     [SerializeField] private GameObject m_DamageParticles;
 
     public bool IsHit {  get; private set; }
-    public float HitResistance;     //击退抗性
+
+
+    float m_HitResistance;     //击退抗性
 
 
 
 
-    //public override void LogicUpdate() { }
+    private void Start()
+    {
+        m_HitResistance = core.HitResistance;   //从Core那里获得参数
+    }
 
     public void Damage(float amount)
     {
@@ -20,7 +25,7 @@ public class Combat : CoreComponent, Idamageable, IKnockbackable    //用于管理受
         //Debug.Log(core.transform.parent.name + " Damaged!");
         Stats.DecreaseHealth(amount);
 
-        particleManager.StartParticleWithRandomRotation(m_DamageParticles);   //造成伤害时生成特效
+        particleManager.StartParticleWithRandomRotation(m_DamageParticles);   //造成伤害时在受击物体周围生成特效
     }
 
     /*
@@ -35,10 +40,10 @@ public class Combat : CoreComponent, Idamageable, IKnockbackable    //用于管理受
 
     public void KnockBack(float strength, Vector2 direction)
     {
-        if (strength > HitResistance)
+        if (strength > m_HitResistance)
         {
             //Debug.Log("You got knocked!");
-            Movement.SetVelocity(strength - HitResistance, direction);      //只有当击退力度大于击退抗性时才会被击退
+            Movement.SetVelocity(strength - m_HitResistance, direction);      //只有当击退力度大于击退抗性时才会被击退
         }
     }
 

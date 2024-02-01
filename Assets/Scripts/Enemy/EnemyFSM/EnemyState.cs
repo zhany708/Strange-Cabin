@@ -50,6 +50,14 @@ public class EnemyState
     string m_AnimationBoolName;     //告诉动画器应该播放哪个动画
 
 
+
+
+
+
+
+
+
+
     public EnemyState(Enemy enemy, EnemyStateMachine stateMachine, SO_EnemyData enemyData, string animBoolName)
     {
         this.enemy = enemy;
