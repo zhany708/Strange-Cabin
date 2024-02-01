@@ -4,19 +4,12 @@ using UnityEngine;
 
 public class RootRoomController : MonoBehaviour
 {
-    public GameObject[] AllRooms;
-
-    public bool CanGenerateLeftDoor;
-    public bool CanGenerateRightDoor;
-    public bool CanGenerateUpDoor;
-    public bool CanGenerateDownDoor;
-
-
     CinemachineVirtualCamera m_PlayerCamera;
     Collider2D m_CameraConfiner;
 
     DoorController m_DoorInsideThisRoom;
-    RoomGenerator m_RoomGenerator;
+    RoomGenerator m_RoomManager;
+    
 
 
     bool m_HasGeneratedRoom = false;
@@ -32,22 +25,17 @@ public class RootRoomController : MonoBehaviour
         m_CameraConfiner = transform.Find("CameraConfiner").GetComponent<Collider2D>();
 
         m_DoorInsideThisRoom = GetComponentInChildren<DoorController>();
-        m_RoomGenerator = GameObject.Find("RoomGenerator").GetComponent<RoomGenerator>();
-    }
-
-    private void Start()
-    {
-        /*
-        CanGenerateLeftDoor = true;
-        CanGenerateRightDoor = true;
-        CanGenerateUpDoor = true;
-        CanGenerateDownDoor = true;
-        */
+        m_RoomManager = GameObject.Find("RoomManager").GetComponent<RoomGenerator>();   //Ñ°ÕÒ³¡¾°ÖĞÕâ¸öÃû×ÖµÄÎïÌå£¬²¢»ñµÃÏàÓ¦µÄ×é¼ş
     }
 
     private void OnEnable()
     {
-        m_RoomGenerator.GeneratedRoomPos.Add(transform.position);   //æ¯å½“æˆ¿é—´æ¿€æ´»åå°†å½“å‰åæ ‡åŠ è¿›List
+        m_RoomManager.GeneratedRoomPos.Add(transform.position);     //Ã¿µ±·¿¼ä¼¤»îÊ±£¬½«µ±Ç°·¿¼äµÄ×ø±ê¼Ó½øList
+    }
+
+    private void OnDisable()
+    {   
+        m_RoomManager.GeneratedRoomPos.Remove(transform.position);  //Ã¿µ±·¿¼äÈ¡Ïû¼¤»îÊ±£¬´ÓListÖĞÒÆ³ıµ±Ç°·¿¼äµÄ×ø±ê
     }
 
 
@@ -58,11 +46,11 @@ public class RootRoomController : MonoBehaviour
             //Debug.Log("Player entered!");
 
             CinemachineConfiner2D confiner = m_PlayerCamera.GetComponent<CinemachineConfiner2D>();
-            confiner.m_BoundingShape2D = m_CameraConfiner;      //ï¿½ï¿½Ò½ï¿½ï¿½ë·¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²ï¿½ï¿½
+            confiner.m_BoundingShape2D = m_CameraConfiner;      //Íæ¼Ò½øÈë·¿¼äºó¸ü¸ÄĞéÄâÏà»úµÄÏà»úÅö×²¿ò
 
             if (!m_HasGeneratedRoom)
             {
-                GenerateRoom();
+                m_RoomManager.GenerateRoom(transform);  //Ã¿µ±Íæ¼Ò½øÈë·¿¼ä£¬ÔòÔÚµ±Ç°·¿¼äÖÜÎ§Éú³ÉĞÂµÄ·¿¼ä
             }         
         }
     }
@@ -71,13 +59,22 @@ public class RootRoomController : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            m_DoorInsideThisRoom.RoomTrigger.enabled = true;    //ï¿½ï¿½ï¿½ï¿½ë¿ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½Åµï¿½ï¿½ï¿½×²ï¿½ï¿½ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö®ï¿½ï¿½ï¿½Ù½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Éµï¿½ï¿½ï¿½
+            m_DoorInsideThisRoom.RoomTrigger.enabled = true;    //Íæ¼ÒÀë¿ª·¿¼äºóÖØĞÂ¼¤»îÃÅµÄÅö×²Æ÷£¬´Ó¶øÈÃÍæ¼ÒÖ®ºóÔÙ½øÈëÊ±Éú³ÉµĞÈË
 
-            if (m_DoorInsideThisRoom.HasGeneratedEvent)     //ï¿½ï¿½é·¿ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½É¹ï¿½ï¿½Â¼ï¿½
+            if (m_DoorInsideThisRoom.HasGeneratedEvent)     //¼ì²é·¿¼äÊÇ·ñÉú³É¹ıÊÂ¼ş
             {
-                m_DoorInsideThisRoom.SetHasGeneratedEvent(false);       //ï¿½ï¿½ï¿½ï¿½é·¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½Ä²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªfalse
-                m_DoorInsideThisRoom.EventManagerAtDoor.DeactivateEventObject();        //ï¿½ï¿½ï¿½ï¿½ë¿ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½
+                m_DoorInsideThisRoom.SetHasGeneratedEvent(false);       //½«¼ì²é·¿¼äÓĞÎŞÉú³ÉÊÂ¼şµÄ²¼¶ûÉèÖÃÎªfalse
+                m_DoorInsideThisRoom.EventManagerAtDoor.DeactivateEventObject();        //Íæ¼ÒÀë¿ª·¿¼äºóÏú»ÙÊÂ¼şÎïÌå
             }            
         }
+    }
+
+
+
+    
+    
+    public void SetHasGeneratorRoom(bool isTrue)
+    {
+        m_HasGeneratedRoom = isTrue;
     }
 }

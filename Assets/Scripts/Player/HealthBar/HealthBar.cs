@@ -9,7 +9,7 @@ public class HealthBar : MonoBehaviour
     public Image hpEffectImage;     //血量缓冲图片
 
 
-    PlayerStats m_PlayerStats;
+    Player m_Player;
     float m_MaxHp;
     float m_CurrentHp;
     float m_BuffTime = 0.5f;    //缓冲时间
@@ -18,9 +18,9 @@ public class HealthBar : MonoBehaviour
 
     private void Start()
     {
-        m_PlayerStats = GetComponentInParent<PlayerStats>();
+        m_Player = GetComponentInParent<Player>();
 
-        m_MaxHp = m_PlayerStats.MaxHealth;        //游戏开始时初始化最大生命值
+        m_MaxHp = m_Player.PlayerData.MaxHealth;        //游戏开始时初始化最大生命值
         m_CurrentHp = m_MaxHp;
 
         UpdateHealthBar();

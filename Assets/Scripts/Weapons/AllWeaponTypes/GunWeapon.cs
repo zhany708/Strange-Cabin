@@ -70,8 +70,10 @@ public class GunWeapon : Weapon
     {
         GameObject bullet = ParticlePool.Instance.GetObject(BulletPrefab);
 
+        float offsetAngle = Random.Range(-5f, 5f);      //用于小幅偏移子弹（不让子弹完全对着鼠标发射）
+
         bullet.transform.position = muzzlePos.position;     //生成子弹后更改位置于枪口位置
         bullet.GetComponent<PlayerBullet>().SetWeapon(this);
-        bullet.GetComponent<PlayerBullet>().SetSpeed(mousePosition);     //使子弹向鼠标位置移动（不能用武器脚本中的mousePosition，否则玩家切换武器后的第一发子弹移动方向会出错）
+        bullet.GetComponent<PlayerBullet>().SetSpeed(Quaternion.AngleAxis(offsetAngle, Vector3.forward) * mousePosition);     //使子弹向鼠标位置移动，并产生随机的角度偏移
     }
 }

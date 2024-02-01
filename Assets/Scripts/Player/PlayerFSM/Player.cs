@@ -5,16 +5,13 @@ using ZhangYu.Utilities;
 
 public class Player : MonoBehaviour
 {
-    #region State Variables
+    #region FSM States
     public PlayerStateMachine StateMachine { get; private set; }
     public PlayerIdleState IdleState { get; private set; }
     public PlayerMoveState MoveState { get; private set; }
     public PlayerHitState HitState { get; private set; }
     public PlayerAttackState PrimaryAttackState { get; private set; }
     public PlayerAttackState SecondaryAttackState { get; private set; }
-
-    [SerializeField]
-    SO_PlayerData m_PlayerData;
     #endregion
 
     #region Components
@@ -29,11 +26,14 @@ public class Player : MonoBehaviour
     public Weapon SecondaryWeapon {  get; private set; }
 
 
+    [SerializeField]
+    public SO_PlayerData PlayerData;
+
     Flip m_PlayerFlip;
     #endregion
 
     #region Other Variable
-    public int FacingNum = 1;
+    public int FacingNum { get; private set; }
 
 
     int m_CurrentPrimaryWeaponNum = 0;      //使角色游戏开始默认装备匕首
@@ -48,6 +48,7 @@ public class Player : MonoBehaviour
         FootAnimator = transform.Find("PlayerFoot").GetComponent<Animator>();   //获取脚上的动画器组件
 
         Core = GetComponentInChildren<Core>();      //从子物体那调用Core脚本
+        Core.SetParameters(PlayerData.MaxHealth, PlayerData.Defense, PlayerData.HitResistance);   //将玩家参数传给Core
 
         PrimaryWeapon = transform.Find("PrimaryWeapon").GetComponentInChildren<Weapon>();
         SecondaryWeapon = transform.Find("SecondaryWeapon").GetComponentInChildren<Weapon>();
@@ -55,11 +56,11 @@ public class Player : MonoBehaviour
         StateMachine = new PlayerStateMachine();
 
         //初始化各状态
-        IdleState = new PlayerIdleState(this, StateMachine, m_PlayerData, "Idle");
-        MoveState = new PlayerMoveState(this, StateMachine, m_PlayerData, "Idle");
-        HitState = new PlayerHitState(this, StateMachine, m_PlayerData, "Hit");
-        PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Idle", PrimaryWeapon);
-        SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Idle", SecondaryWeapon);
+        IdleState = new PlayerIdleState(this, StateMachine, PlayerData, "Idle");
+        MoveState = new PlayerMoveState(this, StateMachine, PlayerData, "Idle");
+        HitState = new PlayerHitState(this, StateMachine, PlayerData, "Hit");
+        PrimaryAttackState = new PlayerAttackState(this, StateMachine, PlayerData, "Idle", PrimaryWeapon);
+        SecondaryAttackState = new PlayerAttackState(this, StateMachine, PlayerData, "Idle", SecondaryWeapon);
     }
 
     private void Start()
@@ -96,7 +97,7 @@ public class Player : MonoBehaviour
     #region Other Functions
     public void ChangeWeapon(GameObject weapon, bool isPrimary)
     {
-        int newWeaponNum = CheckNum(weapon);        //获取新的武器计数
+        int newWeaponNum = CheckWeaponIndex(weapon);        //获取新的武器计数
 
         //将需要更换的武器通过SetActive激活，并根据主/副生成新的攻击状态
         if (isPrimary)      //激活新武器于主手
@@ -104,7 +105,7 @@ public class Player : MonoBehaviour
             Inventory.PrimaryWeapon[m_CurrentPrimaryWeaponNum].SetActive(false);
             Inventory.PrimaryWeapon[newWeaponNum].SetActive(true);      
 
-            PrimaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Idle", Inventory.PrimaryWeapon[newWeaponNum].GetComponent<Weapon>());       //激活新攻击状态
+            PrimaryAttackState = new PlayerAttackState(this, StateMachine, PlayerData, "Idle", Inventory.PrimaryWeapon[newWeaponNum].GetComponent<Weapon>());       //激活新攻击状态
 
             m_CurrentPrimaryWeaponNum = newWeaponNum;   //重新设置当前武器计数
         }
@@ -114,14 +115,14 @@ public class Player : MonoBehaviour
             Inventory.SecondaryWeapon[m_CurrentSecondaryWeaponNum].SetActive(false);
             Inventory.SecondaryWeapon[newWeaponNum].SetActive(true);      
 
-            SecondaryAttackState = new PlayerAttackState(this, StateMachine, m_PlayerData, "Idle", Inventory.SecondaryWeapon[newWeaponNum].GetComponent<Weapon>());  
+            SecondaryAttackState = new PlayerAttackState(this, StateMachine, PlayerData, "Idle", Inventory.SecondaryWeapon[newWeaponNum].GetComponent<Weapon>());  
 
             m_CurrentSecondaryWeaponNum = newWeaponNum;
         }
     }
 
 
-    private int CheckNum(GameObject weapon)    //主武器和副武器的顺序一样，所以无需区分计数
+    private int CheckWeaponIndex(GameObject weapon)    //主武器和副武器的顺序一样，所以无需区分计数
     {
         int WeaponNum = 0;
         for (int i = 0; i < Inventory.PrimaryWeapon.Length; i++)

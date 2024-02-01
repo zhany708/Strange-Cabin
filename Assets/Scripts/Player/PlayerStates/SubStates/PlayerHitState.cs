@@ -20,7 +20,7 @@ public class PlayerHitState : PlayerGroundedState
     {
         base.Exit();
 
-        Combat.SetIsHitFalse();
+        Combat.SetIsHit(false);
         isHit = false;
     }
 
