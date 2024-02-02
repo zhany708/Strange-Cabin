@@ -9,6 +9,8 @@ public class RoomGenerator : MonoBehaviour
 {
     public GameObject[] AllRooms;
 
+    public Transform FatherOfAllRooms;      //所有生成的房间的父物体，为了整洁美观
+
     public HashSet<Vector2> GeneratedRoomPos = new HashSet<Vector2>();      //HashSet在性能上要优于List（不在乎顺序的情况下，且它不能储存重复的东西）
     //public List<Vector2> GeneratedRoomPos = new List<Vector2>();      //用于Debug，因为Unity里看不到HashSet
 
@@ -29,18 +31,16 @@ public class RoomGenerator : MonoBehaviour
         currentRoom.GetComponent<RootRoomController>().SetHasGeneratorRoom(true);
     }
 
-    private void GenerateRoomInDirection(Transform currentPos, bool hasDoor, Vector2 offset, string requiredDoor)
+    private void GenerateRoomInDirection(Transform currentRoomPos, bool hasDoor, Vector2 offset, string requiredDoor)
     {
 
         if (hasDoor)
         {
-            Vector2 roomPos = (Vector2)currentPos.transform.position + offset;
+            Vector2 roomPos = (Vector2)currentRoomPos.transform.position + offset;
 
             if (CheckOverlapPosition(roomPos))  return;     //如果有坐标重复，则返回（不生成房间）
 
-            //if (!CheckSuitableRoom(requiredDoor)) return;   //如果没有合适的房间可以生成，则返回
-
-            GenerateSuitableRoom(roomPos, requiredDoor);    //如果所有条件都满足，则生成合适的房间
+            GenerateSuitableRoom(roomPos, requiredDoor);     //如果所有条件都满足，则生成合适的房间
         }
     }
 
@@ -59,160 +59,67 @@ public class RoomGenerator : MonoBehaviour
     }
 
 
-    private bool CheckSuitableRoom(string checkRequiredDoor)        //检查还有没有合适的房间（无旋转）
-    {
-        int notFitRoomNum = 0;
-
-        foreach (var room in AllRooms)
-        {
-            Transform checkRoomDoors = room.transform.Find("Doors");
-            Transform checkdoor = checkRoomDoors.Find(checkRequiredDoor);
-
-            if (checkdoor != null)
-            {
-                return true;
-            }
-            else
-            {
-                notFitRoomNum++;
-                //Debug.Log(notFitRoomNum);
-
-                if (notFitRoomNum >= AllRooms.Length)
-                {
-                    Debug.Log("No suitable room left!");    //当没有房间符合条件时，返回
-                    return false;
-                }
-            }
-        }
-
-        return false;
-    }
+    
 
 
     private void GenerateSuitableRoom(Vector2 newRoomPos, string neededDoorName)
     {
-        int randomRoomNum = Random.Range(0, AllRooms.Length);
+        bool isRoomPlaced = false;
+        int attemptCount = 0;
+        const int maxAttempts = 200;     //最大尝试次数
 
-        GameObject allRooms = GameObject.Find("AllRooms");      //所有生成的房间的父物体，为了整洁美观
-
-        GameObject newRoom = Instantiate(AllRooms[randomRoomNum], newRoomPos, Quaternion.identity, allRooms.transform);
-        RoomType newRoomType = newRoom.GetComponent<RoomType>();
-
-
-
-
-
-        bool checkDoor;
-
-        if (neededDoorName == "LeftDoor")
+        while (!isRoomPlaced && attemptCount < maxAttempts)     //生成房间次数大于200次后强制返回，防止出现无限循环
         {
-            checkDoor = newRoomType.HasLeftDoor;
-        }
+            attemptCount++;
 
-        else if (neededDoorName == "RightDoor")
-        {
-            checkDoor = newRoomType.HasRightDoor;
-        }
+            int randomRoomNum = Random.Range(0, AllRooms.Length);       //随机生成房间的索引
 
-        else if (neededDoorName == "UpDoor")
-        {
-            checkDoor = newRoomType.HasUpDoor;
-        }
+            GameObject newRoom = Instantiate(AllRooms[randomRoomNum], newRoomPos, Quaternion.identity, FatherOfAllRooms);
+            RoomType newRoomType = newRoom.GetComponent<RoomType>();
 
-        else
-        {
-            checkDoor = newRoomType.HasDownDoor;
-        }
-
-
-
-
-        bool done = false;
-        int loopNum = 0;
-        int maxLoopNum = 200;
-
-        while (!done)
-        {
-            if (checkDoor)    //当有不需要旋转就合适的房间时，直接返回
+            //先检查是否直接有需要的门，如果没有则通过旋转之后再次检查
+            if (HasRequiredDoor(newRoomType, neededDoorName) || TryRotateRoomToMatchDoor(newRoomType, neededDoorName) )
             {
-                return;
+                isRoomPlaced = true;
             }
             else
             {
-                //Vector3 newRoomRotation = newRoomType.RotateRoom(neededDoorName);
-                Vector3 newRoomRotation = newRoomType.RotateRoom(neededDoorName);
-
-                //进行旋转之后，再次检查门的布尔
-                if (neededDoorName == "LeftDoor")
-                {
-                    if (newRoomType.HasLeftDoor)
-                    {
-                        newRoomType.SetIsRotate(true);      //设置isRotate布尔为真，防止房间的Awake函数重新设置4个门的布尔
-
-
-                        newRoom.transform.rotation = Quaternion.Euler(newRoomRotation);     //只改旋转角度
-                        return;
-                    }
-
-                    //Destroy(newRoom);
-                }
-
-                else if (neededDoorName == "RightDoor")
-                {
-                    if (newRoomType.HasRightDoor)
-                    {
-                        newRoomType.SetIsRotate(true);
-
-
-                        newRoom.transform.rotation = Quaternion.Euler(newRoomRotation);
-                        return;
-                    }
-
-                    //Destroy(newRoom);
-                }
-
-                else if (neededDoorName == "UpDoor")
-                {
-                    if (newRoomType.HasUpDoor)
-                    {
-                        newRoomType.SetIsRotate(true);
-
-
-                        newRoom.transform.rotation = Quaternion.Euler(newRoomRotation);
-                        return;
-                    }
-
-                    //Destroy(newRoom);
-                }
-
-                else
-                {
-                    if (newRoomType.HasDownDoor)
-                    {
-                        newRoomType.SetIsRotate(true);
-
-
-                        newRoom.transform.rotation = Quaternion.Euler(newRoomRotation);
-                        return;
-                    }
-
-                    //Destroy(newRoom);
-                }
-
-
                 Destroy(newRoom);
-
-
-                loopNum++;
-
-                if (loopNum >= maxLoopNum)
-                {
-                    Debug.Log("Loop too many times!");
-                    return;     //生成房间次数大于100次后强制返回，防止出现无限循环
-                }
             }
-
-            done = false;
         }
+
+        if ( !isRoomPlaced )        //如果超过最大尝试次数后依然没有合适的房间，则实施一些功能
+        {
+            Debug.Log("Failed to place a suitable room after " + maxAttempts + " attempts!");
+        }
+    }
+
+
+
+    private bool HasRequiredDoor(RoomType roomType, string neededDoorName)
+    {
+        return neededDoorName switch        //根据需要的房间名返回对应的布尔值
+        {
+            "LeftDoor" => roomType.HasLeftDoor,
+            "RightDoor" => roomType.HasRightDoor,
+            "UpDoor" => roomType.HasUpDoor,
+            "DownDoor" => roomType.HasDownDoor,
+            _ => false,     //相当于default case，如果上面四个都没有实施，则实施这一行
+        };
+    }
+
+    private bool TryRotateRoomToMatchDoor(RoomType roomType, string neededDoorName)
+    {
+        Vector3 newRoomRotation = roomType.RotateRoom(neededDoorName);
+
+        if (HasRequiredDoor(roomType, neededDoorName))     //进行旋转之后，再次检查门的布尔
+        {
+            roomType.SetIsRotate(true);     //设置isRotate布尔为真，防止房间的Awake函数重新设置4个门的布尔
+            roomType.transform.rotation = Quaternion.Euler(newRoomRotation);        //只改旋转角度
+
+            return true;
+        }
+        
+        return false;
     }
 }

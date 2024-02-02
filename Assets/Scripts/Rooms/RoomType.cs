@@ -74,7 +74,7 @@ public class RoomType : MonoBehaviour
         }
 
         
-        m_DoorFlags = DoorFlags.None;
+        m_DoorFlags = DoorFlags.None;       //给Bit Flag赋值
         if (HasLeftDoor) m_DoorFlags |= DoorFlags.Left;
         if (HasRightDoor) m_DoorFlags |= DoorFlags.Right;
         if (HasUpDoor) m_DoorFlags |= DoorFlags.Up;
@@ -144,7 +144,7 @@ public class RoomType : MonoBehaviour
             return RoomTypeName.OneHorizontalAndOneVertical;
         }
 
-        else if (hasHorizontal)     //再检查是否只有一个方向
+        else if (hasHorizontal)     //再检查是否只有一个方向有门
         {
             m_CanRotate = true;
             return RoomTypeName.OneHorizontal;
@@ -247,7 +247,7 @@ public class RoomType : MonoBehaviour
 
 
 
-    private void SwapBool(ref bool a, ref bool b)       //呼唤两个布尔值
+    private void SwapBool(ref bool a, ref bool b)       //互换两个布尔值
     {
         bool temp = a;
         a = b; 
