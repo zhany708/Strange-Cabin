@@ -1,13 +1,16 @@
-﻿using DG.Tweening;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+
+
+
 
 
 public class RoomGenerator : MonoBehaviour
 {
     public GameObject[] AllRooms;
 
-    public List<Vector2> GeneratedRoomPos = new List<Vector2>();
+    public HashSet<Vector2> GeneratedRoomPos = new HashSet<Vector2>();      //HashSet在性能上要优于List（不在乎顺序的情况下，且它不能储存重复的东西）
+    //public List<Vector2> GeneratedRoomPos = new List<Vector2>();      //用于Debug，因为Unity里看不到HashSet
 
 
 
@@ -42,7 +45,7 @@ public class RoomGenerator : MonoBehaviour
     }
 
 
-    private bool CheckOverlapPosition(Vector2 checkPos)
+    private bool CheckOverlapPosition(Vector2 checkPos)     //检查坐标是否重复
     {
         foreach (var position in GeneratedRoomPos)
         {
@@ -56,7 +59,7 @@ public class RoomGenerator : MonoBehaviour
     }
 
 
-    private bool CheckSuitableRoom(string checkRequiredDoor)
+    private bool CheckSuitableRoom(string checkRequiredDoor)        //检查还有没有合适的房间（无旋转）
     {
         int notFitRoomNum = 0;
 
@@ -126,6 +129,7 @@ public class RoomGenerator : MonoBehaviour
 
         bool done = false;
         int loopNum = 0;
+        int maxLoopNum = 200;
 
         while (!done)
         {
@@ -135,6 +139,7 @@ public class RoomGenerator : MonoBehaviour
             }
             else
             {
+                //Vector3 newRoomRotation = newRoomType.RotateRoom(neededDoorName);
                 Vector3 newRoomRotation = newRoomType.RotateRoom(neededDoorName);
 
                 //进行旋转之后，再次检查门的布尔
@@ -149,7 +154,7 @@ public class RoomGenerator : MonoBehaviour
                         return;
                     }
 
-                    Destroy(newRoom);
+                    //Destroy(newRoom);
                 }
 
                 else if (neededDoorName == "RightDoor")
@@ -163,7 +168,7 @@ public class RoomGenerator : MonoBehaviour
                         return;
                     }
 
-                    Destroy(newRoom);
+                    //Destroy(newRoom);
                 }
 
                 else if (neededDoorName == "UpDoor")
@@ -177,7 +182,7 @@ public class RoomGenerator : MonoBehaviour
                         return;
                     }
 
-                    Destroy(newRoom);
+                    //Destroy(newRoom);
                 }
 
                 else
@@ -191,19 +196,19 @@ public class RoomGenerator : MonoBehaviour
                         return;
                     }
 
-                    Destroy(newRoom);
+                    //Destroy(newRoom);
                 }
 
 
-
+                Destroy(newRoom);
 
 
                 loopNum++;
 
-                if (loopNum >= 100)
+                if (loopNum >= maxLoopNum)
                 {
                     Debug.Log("Loop too many times!");
-                    return;     //生成房间次数大于10次后强制返回，防止出现无限循环
+                    return;     //生成房间次数大于100次后强制返回，防止出现无限循环
                 }
             }
 
