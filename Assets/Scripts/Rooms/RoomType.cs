@@ -1,34 +1,207 @@
+using System;
+using UnityEditor;
 using UnityEngine;
 
 [System.Serializable]
-public class RoomType
+public class RoomType : MonoBehaviour
 {
-    public GameObject RoomPrefab;
     public bool HasLeftDoor;
     public bool HasRightDoor;
     public bool HasUpDoor;
     public bool HasDownDoor;
-  
 
-    /* Xè½´180ç¿»è½¬ä¸Šä¸‹ï¼ŒYè½´180ç¿»è½¬å·¦å³ï¼ŒZè½´180åŒæ—¶ç¿»è½¬ä¸Šä¸‹å’Œå·¦å³
-    0. å››å‘¨éƒ½æœ‰é—¨ï¼ˆä¸éœ€è¦æ—‹è½¬ï¼‰
-    1. å·¦å³éƒ½æœ‰é—¨ï¼ˆæ¯”å¦‚å…¥å£å¤§å ‚ï¼‰ï¼ˆä¸éœ€è¦æ—‹è½¬ï¼‰
-    2. å·¦å³æœ‰ä¸€ä¸ªé—¨ï¼ˆå¯æ¨ªå‘æ—‹è½¬ï¼ŒYè½´180ï¼‰
-    3. ä¸Šä¸‹éƒ½æœ‰é—¨ï¼ˆä¸éœ€è¦æ—‹è½¬ï¼‰
-    4. ä¸Šä¸‹æœ‰ä¸€ä¸ªé—¨ï¼ˆå¯ç«–å‘æ—‹è½¬ï¼ŒXè½´180ï¼‰
-    5. ä¸Šä¸‹å’Œå·¦å³å„æœ‰ä¸€ä¸ªé—¨ï¼ˆæ¯”å¦‚å¨æˆ¿ï¼‰ï¼ˆXè½´180ï¼ŒYè½´180ï¼ŒZè½´180ï¼‰
-    6. ä¸Šä¸‹éƒ½æœ‰ï¼Œå·¦å³åªæœ‰ä¸€ä¸ªï¼ˆæ¨ªå‘æ—‹è½¬ï¼ŒYè½´180ï¼‰
-    7. å·¦å³éƒ½æœ‰é—¨ï¼Œä¸Šä¸‹åªæœ‰ä¸€ä¸ªï¼ˆç«–å‘æ—‹è½¬ï¼ŒXè½´180ï¼‰
+    string m_RoomType = null;
+    bool m_CanRotate;
+    bool m_isRotate = false;
+
+    /* XÖá180·­×ªÉÏÏÂ£¬YÖá180·­×ª×óÓÒ£¬ZÖá180Í¬Ê±·­×ªÉÏÏÂºÍ×óÓÒ
+    1. ËÄÖÜ¶¼ÓĞÃÅ£¨²»ĞèÒªĞı×ª£©
+    2. ×óÓÒ¶¼ÓĞÃÅ£¨±ÈÈçÈë¿Ú´óÌÃ£©£¨²»ĞèÒªĞı×ª£©
+    3. ×óÓÒÓĞÒ»¸öÃÅ£¨¿ÉºáÏòĞı×ª£¬YÖá180£©
+    4. ÉÏÏÂ¶¼ÓĞÃÅ£¨²»ĞèÒªĞı×ª£©
+    5. ÉÏÏÂÓĞÒ»¸öÃÅ£¨¿ÉÊúÏòĞı×ª£¬XÖá180£©
+    6. ÉÏÏÂºÍ×óÓÒ¸÷ÓĞÒ»¸öÃÅ£¨±ÈÈç³ø·¿£©£¨ÊúÏòºÍºáÏòĞı×ª£¬XÖá180£¬YÖá180£©
+    7. ÉÏÏÂ¶¼ÓĞ£¬×óÓÒÖ»ÓĞÒ»¸ö£¨ºáÏòĞı×ª£¬YÖá180£©
+    8. ×óÓÒ¶¼ÓĞÃÅ£¬ÉÏÏÂÖ»ÓĞÒ»¸ö£¨ÊúÏòĞı×ª£¬XÖá180£©
      */
 
 
 
 
+    private void Awake()
+    {
+        if (!m_isRotate)
+        {
+            SetFourDoors();     //ÓÎÏ·¿ªÊ¼Ê±¸³ÖµËÄ¸ö²¼¶û
+        }
+    }
+
+    private void OnEnable()
+    {
+        //Debug.Log(gameObject.name + "'s room type is " + CheckRoomType());
+    }
+
+
+
     public string CheckRoomType()
     {
-        string a = "";
+        if (HasLeftDoor || HasRightDoor)
+        {
+            if (HasLeftDoor && HasRightDoor)
+            {
+                if (HasUpDoor && HasDownDoor)   
+                {
+                    m_RoomType = "AllDirection";  //ËÄÖÜ¶¼ÓĞÃÅ
+                    m_CanRotate = false;
+                }
+
+                else if (HasUpDoor || HasDownDoor) 
+                {
+                    m_RoomType = "AllHorizontalAndOneVertical";   //×óÓÒ¶¼ÓĞÃÅ£¬ÉÏÏÂÖ»ÓĞÒ»¸ö
+                    m_CanRotate = true;
+                }
+
+                else
+                {
+                    m_RoomType = "AllHorizontal";     //×óÓÒ¶¼ÓĞÃÅ
+                    m_CanRotate = false;
+                }
+            }
+
+            else
+            {
+                if (HasUpDoor && HasDownDoor)
+                {
+                    m_RoomType = "OneHorizontalAndAllVertical";   //ÉÏÏÂ¶¼ÓĞ£¬×óÓÒÖ»ÓĞÒ»¸ö
+                    m_CanRotate = true;
+                }
+
+                else if (HasUpDoor || HasDownDoor)
+                {
+                    m_RoomType = "OneHorizontalAndOneVertical";   //ÉÏÏÂºÍ×óÓÒ¸÷ÓĞÒ»¸öÃÅ
+                    m_CanRotate = true;
+                }
+
+                else
+                {
+                    m_RoomType = "OneHorizontal";     //×óÓÒÓĞÒ»¸öÃÅ
+                    m_CanRotate = true;
+                }             
+            }
+        }
 
 
-        return a;
+        else
+        {
+            if (HasUpDoor && HasDownDoor)
+            {
+
+                m_RoomType = "AllVertical";     //ÉÏÏÂ¶¼ÓĞÃÅ
+                m_CanRotate = false;
+
+            }
+
+            else
+            {
+                m_RoomType = "OneVertical";     //ÉÏÏÂÓĞÒ»¸öÃÅ
+                m_CanRotate = true;
+            }
+        }
+
+        //Debug.Log(m_RoomType);
+        return m_RoomType;
+    }
+
+
+    public Vector3 RotateRoom(string needDoor)
+    {
+        CheckRoomType();
+
+        Vector3 newRotation;
+
+        if (m_CanRotate)
+        {
+            if (needDoor == "LeftDoor" || needDoor == "RightDoor")
+            {
+                if (m_RoomType == "OneHorizontal" || m_RoomType == "OneHorizontalAndAllVertical" || m_RoomType == "OneHorizontalAndOneVertical")    //Ö»ÓĞÕâÈıÖÖ¿ÉÒÔ·­×ª
+                {
+                    newRotation = new Vector3(0, 180f, 0);    //ÑØYÖá·­×ª
+
+                    if (HasLeftDoor)
+                    {
+                        HasLeftDoor = false;
+                        HasRightDoor = true;
+                    }
+                    else
+                    {
+                        HasLeftDoor = true;
+                        HasRightDoor = false;
+                    }
+
+                    return newRotation;
+                }
+            }
+
+
+            else if (needDoor == "UpDoor" || needDoor == "DownDoor")
+            {
+                if (m_RoomType == "OneVertical" || m_RoomType == "AllHorizontalAndOneVertical" || m_RoomType == "OneHorizontalAndOneVertical")  //Ö»ÓĞÕâÈıÖÖ¿ÉÒÔ·­×ª
+                {
+                    newRotation = new Vector3(180f, 0, 0);    //ÑØXÖá·­×ª
+
+                    if (HasUpDoor)
+                    {
+                        HasUpDoor = false;
+                        HasDownDoor = true;
+                    }
+                    else
+                    {
+                        HasUpDoor = true;
+                        HasDownDoor = false;
+                    }
+
+                    return newRotation;
+                }
+            }
+
+            else
+            {
+                Debug.Log("NeedDoor parameter is incorrect!");
+            }
+        }
+
+        return Vector3.zero;
+    }
+
+
+    private void SetFourDoors()
+    {
+        Transform doors = transform.Find("Doors");
+
+        HasLeftDoor = CheckExistDoor(doors, "LeftDoor");
+        HasRightDoor = CheckExistDoor(doors, "RightDoor");
+        HasUpDoor = CheckExistDoor(doors, "UpDoor");
+        HasDownDoor = CheckExistDoor(doors, "DownDoor");
+    }
+
+    private bool CheckExistDoor(Transform doors, string checkDoor)
+    {
+        Transform door = doors.Find(checkDoor);
+
+        if (door != null)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+
+
+    public void SetIsRotate(bool isTrue)
+    {
+        m_isRotate = isTrue;
     }
 }
