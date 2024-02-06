@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class ParticleManager : CoreComponent    //用于生成特效
 {
+
+
+
+
     public GameObject StartParticles(GameObject particlePrefab, Vector2 position, quaternion rotation)
     {
         GameObject particle = ParticlePool.Instance.GetObject(particlePrefab);

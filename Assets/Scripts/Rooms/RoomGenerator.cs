@@ -15,18 +15,20 @@ public class RoomGenerator : MonoBehaviour
     //public List<Vector2> GeneratedRoomPos = new List<Vector2>();      //用于Debug，因为Unity里看不到HashSet
 
 
-
-
+    int m_GeneratedRoomNum = 0;
+    const int m_MaxGeneratedRoomNum = 20;
 
 
 
 
     public void GenerateRoom(Transform currentRoom, RoomType currentRoomType)
     {
-        GenerateRoomInDirection(currentRoom, currentRoomType.HasLeftDoor, new Vector2(-19.2f, 0), "RightDoor");
-        GenerateRoomInDirection(currentRoom, currentRoomType.HasRightDoor, new Vector2(19.2f, 0), "LeftDoor");
-        GenerateRoomInDirection(currentRoom, currentRoomType.HasUpDoor, new Vector2(0, 10.8f), "DownDoor");
-        GenerateRoomInDirection(currentRoom,  currentRoomType.HasDownDoor, new Vector2(0, -10.8f), "UpDoor");
+        DoorFlags currentDoorFlags = currentRoomType.GetDoorFlags();
+
+        GenerateRoomInDirection(currentRoom, (currentDoorFlags & DoorFlags.Left) != 0, new Vector2(-19.2f, 0), "RightDoor");
+        GenerateRoomInDirection(currentRoom, (currentDoorFlags & DoorFlags.Right) != 0, new Vector2(19.2f, 0), "LeftDoor");
+        GenerateRoomInDirection(currentRoom, (currentDoorFlags & DoorFlags.Up) != 0, new Vector2(0, 10.8f), "DownDoor");
+        GenerateRoomInDirection(currentRoom, (currentDoorFlags & DoorFlags.Down) != 0, new Vector2(0, -10.8f), "UpDoor");
 
         currentRoom.GetComponent<RootRoomController>().SetHasGeneratorRoom(true);
     }
@@ -47,15 +49,7 @@ public class RoomGenerator : MonoBehaviour
 
     private bool CheckOverlapPosition(Vector2 checkPos)     //检查坐标是否重复
     {
-        foreach (var position in GeneratedRoomPos)
-        {
-            if (checkPos == position)
-            {
-                return true;     //如果坐标重复，则返回（不生成房间）
-            }
-        }
-
-        return false;
+        return GeneratedRoomPos.Contains(checkPos);
     }
 
 
@@ -98,28 +92,49 @@ public class RoomGenerator : MonoBehaviour
 
     private bool HasRequiredDoor(RoomType roomType, string neededDoorName)
     {
+        DoorFlags newDoorFlags = roomType.GetDoorFlags();
+
         return neededDoorName switch        //根据需要的房间名返回对应的布尔值
         {
-            "LeftDoor" => roomType.HasLeftDoor,
-            "RightDoor" => roomType.HasRightDoor,
-            "UpDoor" => roomType.HasUpDoor,
-            "DownDoor" => roomType.HasDownDoor,
+            "LeftDoor" => (newDoorFlags & DoorFlags.Left) != 0,
+            "RightDoor" => (newDoorFlags & DoorFlags.Right) != 0,
+            "UpDoor" => (newDoorFlags & DoorFlags.Up) != 0,
+            "DownDoor" => (newDoorFlags & DoorFlags.Down) != 0,
             _ => false,     //相当于default case，如果上面四个都没有实施，则实施这一行
         };
     }
 
     private bool TryRotateRoomToMatchDoor(RoomType roomType, string neededDoorName)
     {
-        Vector3 newRoomRotation = roomType.RotateRoom(neededDoorName);
+        roomType.RotateRoom(neededDoorName);    //旋转房间
 
         if (HasRequiredDoor(roomType, neededDoorName))     //进行旋转之后，再次检查门的布尔
         {
             roomType.SetIsRotate(true);     //设置isRotate布尔为真，防止房间的Awake函数重新设置4个门的布尔
-            roomType.transform.rotation = Quaternion.Euler(newRoomRotation);        //只改旋转角度
 
             return true;
         }
         
         return false;
     }
+
+
+    #region Getters
+    public int GetGeneratedRoomNum()
+    {
+        return m_GeneratedRoomNum;
+    }
+
+    public int GetMaxGeneratedRoomNum()
+    {
+        return m_MaxGeneratedRoomNum;
+    }
+    #endregion
+
+    #region Setters
+    public void IncrementGeneratedRoomNum()
+    {
+        m_GeneratedRoomNum++;
+    }
+    #endregion
 }

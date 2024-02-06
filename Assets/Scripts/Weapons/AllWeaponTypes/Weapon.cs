@@ -11,10 +11,13 @@ public class Weapon : MonoBehaviour
     public event Action OnExit;      //接受事件方为PlayerAttackState脚本
 
     #region Components
+    //public AudioClip WeaponAudio;     //除非武器有多种攻击音效，否则无需在脚本中声明，可以直接放进AudioSource
+
     public SO_WeaponData WeaponData;
 
 
     protected Animator animator;
+    protected AudioSource audioSource;
 
     protected Core core;
     protected Player player;
@@ -32,6 +35,7 @@ public class Weapon : MonoBehaviour
     protected virtual void Awake()
     {
         animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
 
         player = GetComponentInParent<Player>();
         core = player.GetComponentInChildren<Core>();   //先调用Player父物体，然后再从父物体中寻找Core子物体
@@ -70,6 +74,17 @@ public class Weapon : MonoBehaviour
 
         transform.parent.right = mousePosition.normalized;   //归一化后，更改武器库的朝向，而不是武器的
         weaponInventoryFlip.FlipX(player.FacingNum);       //实时翻转武器，防止玩家翻转时武器也被翻转
+    }
+
+    protected virtual void PlayAudioSound()     //播放武器攻击音效
+    {
+        if (audioSource != null && audioSource.clip != null)
+        {
+            //audioSource.clip = WeaponAudio;
+
+            //audioSource.volume = 1f;  //设置音量
+            audioSource.Play();
+        }
     }
     #endregion
 

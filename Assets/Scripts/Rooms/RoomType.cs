@@ -38,14 +38,8 @@ public enum DoorFlags   //通过Bit Flag判断房间的种类
 [System.Serializable]
 public class RoomType : MonoBehaviour
 {
-    //ToDo：后期需要更改Set范围
-    public bool HasLeftDoor;
-    public bool HasRightDoor;
-    public bool HasUpDoor;
-    public bool HasDownDoor;
+    Transform m_Doors;      //Doors子物体
 
-
- 
     DoorFlags m_DoorFlags;
 
 
@@ -68,18 +62,15 @@ public class RoomType : MonoBehaviour
 
     private void Awake()
     {
+        m_Doors = transform.Find("Doors");      //找到Doors子物体，然后通过该子物体逐一寻找是否有对应的侧门
+
+        m_DoorFlags = DoorFlags.None;       //给Bit Flag赋值
+
+
         if (!m_isRotate)
         {
-            SetFourDoorsBool();     //游戏开始时赋值四个布尔
+            SetDoorFlags();     //游戏开始时赋值四个布尔
         }
-
-        
-        m_DoorFlags = DoorFlags.None;       //给Bit Flag赋值
-        if (HasLeftDoor) m_DoorFlags |= DoorFlags.Left;
-        if (HasRightDoor) m_DoorFlags |= DoorFlags.Right;
-        if (HasUpDoor) m_DoorFlags |= DoorFlags.Up;
-        if (HasDownDoor) m_DoorFlags |= DoorFlags.Down;
-        
     }
 
     private void OnEnable()
@@ -95,24 +86,24 @@ public class RoomType : MonoBehaviour
     public RoomTypeName GetRoomType()
     {
         
-        bool HasLeftDoor = (m_DoorFlags & DoorFlags.Left) != 0;
-        bool HasRightDoor = (m_DoorFlags & DoorFlags.Right) != 0;
-        bool HasUpDoor = (m_DoorFlags & DoorFlags.Up) != 0;
-        bool HasDownDoor = (m_DoorFlags & DoorFlags.Down) != 0;
+        bool hasLeftDoor = (m_DoorFlags & DoorFlags.Left) != 0;
+        bool hasRightDoor = (m_DoorFlags & DoorFlags.Right) != 0;
+        bool hasUpDoor = (m_DoorFlags & DoorFlags.Up) != 0;
+        bool hasDownDoor = (m_DoorFlags & DoorFlags.Down) != 0;
         
 
-        bool hasHorizontal = HasLeftDoor || HasRightDoor;
-        bool hasVertical = HasUpDoor || HasDownDoor;
+        bool hasHorizontal = hasLeftDoor || hasRightDoor;
+        bool hasVertical = hasUpDoor || hasDownDoor;
 
-        if (HasLeftDoor && HasRightDoor && HasUpDoor && HasDownDoor)    //先检查是否都有门
+        if (hasLeftDoor && hasRightDoor && hasUpDoor && hasDownDoor)    //先检查是否都有门
         {
             m_CanRotate = false;
             return RoomTypeName.AllDirection;
         }
 
-        else if (HasLeftDoor && HasRightDoor)   //再检查是否都有左右门
+        else if (hasLeftDoor && hasRightDoor)   //再检查是否都有左右门
         {
-            if (HasUpDoor || HasDownDoor)
+            if (hasUpDoor || hasDownDoor)
             {
                 m_CanRotate = true;
                 return RoomTypeName.AllHorizontalAndOneVertical;
@@ -124,9 +115,9 @@ public class RoomType : MonoBehaviour
             }
         }
 
-        else if (HasUpDoor && HasDownDoor)      //再检查是否都有上下门
+        else if (hasUpDoor && hasDownDoor)      //再检查是否都有上下门
         {
-            if (HasLeftDoor || HasRightDoor)
+            if (hasLeftDoor || hasRightDoor)
             {
                 m_CanRotate = true;
                 return RoomTypeName.OneHorizontalAndAllVertical;
@@ -162,17 +153,21 @@ public class RoomType : MonoBehaviour
 
 
 
-    public Vector3 RotateRoom(string needDoor)
+    public void RotateRoom(string needDoor)
     {
         RoomTypeName currentRoomType = GetRoomType();
         //Debug.Log(currentRoomType);
 
         Vector3 newRotation = Vector3.zero;     //默认值
 
+        DoorFlags newDoorFlags = m_DoorFlags;   //先通过新的临时旗帜进行计算，最后再判断是否赋值给常驻的旗帜
+
         if (!m_CanRotate)
         {
-            return newRotation;
+            Debug.Log(gameObject.name + " cannot be rotated!");
+            return;
         }
+
 
         switch (currentRoomType)
         {
@@ -181,7 +176,9 @@ public class RoomType : MonoBehaviour
                 if (needDoor == "LeftDoor" || needDoor == "RightDoor")
                 {
                     newRotation = new Vector3(0, 180f, 0);      //横向翻转
-                    SwapBool(ref HasLeftDoor, ref HasRightDoor);    //将这两个布尔的值互换              
+
+                    newDoorFlags ^= DoorFlags.Left;      //将这两个布尔的值互换
+                    newDoorFlags ^= DoorFlags.Right;
                 }
                 break;
 
@@ -190,7 +187,9 @@ public class RoomType : MonoBehaviour
                 if (needDoor == "UpDoor" || needDoor == "DownDoor")
                 {
                     newRotation = new Vector3(180f, 0, 0);      //竖向翻转
-                    SwapBool(ref HasUpDoor, ref HasDownDoor);         
+
+                    newDoorFlags ^= DoorFlags.Up;
+                    newDoorFlags ^= DoorFlags.Down;
                 }
                 break;
 
@@ -198,13 +197,17 @@ public class RoomType : MonoBehaviour
                 if (needDoor == "LeftDoor" || needDoor == "RightDoor")
                 {
                     newRotation = new Vector3(0, 180f, 0);
-                    SwapBool(ref HasLeftDoor, ref HasRightDoor);             
+                    
+                    newDoorFlags ^= DoorFlags.Left;
+                    newDoorFlags ^= DoorFlags.Right;
                 }
 
                 else if (needDoor == "UpDoor" || needDoor == "DownDoor")
                 {
                     newRotation = new Vector3(180f, 0, 0);
-                    SwapBool(ref HasUpDoor, ref HasDownDoor);            
+                    
+                    newDoorFlags ^= DoorFlags.Up;
+                    newDoorFlags ^= DoorFlags.Down;
                 }
                 break;
 
@@ -212,7 +215,13 @@ public class RoomType : MonoBehaviour
                 break;
         }
 
-        return newRotation;
+
+        if (newRotation != Vector3.zero)    //如果房间进行过旋转时
+        {
+            m_DoorFlags = newDoorFlags;     //赋值给常驻的旗帜
+
+            transform.rotation = Quaternion.Euler(newRotation);     //改变房间旋转角度
+        }
     }
 
 
@@ -220,14 +229,12 @@ public class RoomType : MonoBehaviour
 
 
 
-    private void SetFourDoorsBool()
+    private void SetDoorFlags()
     {
-        Transform doors = transform.Find("Doors");      //找到Doors子物体，然后逐一寻找是否有对应的侧门
-
-        HasLeftDoor = IsDoorExist(doors, "LeftDoor");
-        HasRightDoor = IsDoorExist(doors, "RightDoor");
-        HasUpDoor = IsDoorExist(doors, "UpDoor");
-        HasDownDoor = IsDoorExist(doors, "DownDoor");
+        m_DoorFlags = (IsDoorExist(m_Doors, "LeftDoor") ? DoorFlags.Left : DoorFlags.None) |
+                      (IsDoorExist(m_Doors, "RightDoor") ? DoorFlags.Right : DoorFlags.None) |
+                      (IsDoorExist(m_Doors, "UpDoor") ? DoorFlags.Up : DoorFlags.None) |
+                      (IsDoorExist(m_Doors, "DownDoor") ? DoorFlags.Down : DoorFlags.None);
     }
 
     private bool IsDoorExist(Transform doors, string checkDoor)
@@ -247,17 +254,18 @@ public class RoomType : MonoBehaviour
 
 
 
-    private void SwapBool(ref bool a, ref bool b)       //互换两个布尔值
+
+    #region Getters
+    public DoorFlags GetDoorFlags()
     {
-        bool temp = a;
-        a = b; 
-        b = temp;
+        return m_DoorFlags;
     }
+    #endregion
 
-
-
+    #region Setters
     public void SetIsRotate(bool isTrue)
     {
         m_isRotate = isTrue;
     }
+    #endregion
 }

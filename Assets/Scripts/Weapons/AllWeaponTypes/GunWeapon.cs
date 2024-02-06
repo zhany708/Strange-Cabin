@@ -75,5 +75,7 @@ public class GunWeapon : Weapon
         bullet.transform.position = muzzlePos.position;     //生成子弹后更改位置于枪口位置
         bullet.GetComponent<PlayerBullet>().SetWeapon(this);
         bullet.GetComponent<PlayerBullet>().SetSpeed(Quaternion.AngleAxis(offsetAngle, Vector3.forward) * mousePosition);     //使子弹向鼠标位置移动，并产生随机的角度偏移
+
+        PlayAudioSound();   //播放开枪音效
     }
 }

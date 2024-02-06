@@ -33,10 +33,23 @@ public class RootRoomController : MonoBehaviour
         m_RoomType = GetComponent<RoomType>();
     }
 
+    private void Start()
+    {
+        
+        if (m_RoomManager.GetGeneratedRoomNum() < m_RoomManager.GetMaxGeneratedRoomNum() )
+        {
+            //m_RoomManager.GenerateRoom(transform, m_RoomType);      //游戏开始时生成固定数量的房间
+        }
+        
+    }
+
+
+
     private void OnEnable()
     {
         //Debug.Log(transform.position);
 
+        m_RoomManager.IncrementGeneratedRoomNum();
         m_RoomManager.GeneratedRoomPos.Add(transform.position);     //每当房间激活时，将当前房间的坐标加进List
     }
 
@@ -44,6 +57,7 @@ public class RootRoomController : MonoBehaviour
     {   
         m_RoomManager.GeneratedRoomPos.Remove(transform.position);  //每当房间取消激活时，从List中移除当前房间的坐标
     }
+
 
 
     private void OnTriggerEnter2D(Collider2D other)

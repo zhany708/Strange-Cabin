@@ -12,7 +12,7 @@ public class UIManager : MonoBehaviour
 
 
     TextMeshProUGUI TransitionStageText;
-    float m_DisplayDuration = 5f;
+    float m_DisplayDuration = 10f;
     
 
 
@@ -67,8 +67,9 @@ public class UIManager : MonoBehaviour
         {
             textComponent.text += letter;       //每当一个字打出来后，等待一段时间再打下一个字
             yield return new WaitForSeconds(typeSpeed);
-        }   
+        }
     }
+
 
     private IEnumerator DisableTextAfterDelay(GameObject thisTextBG, float delay)      //用于一段时间后隐藏文字
     {

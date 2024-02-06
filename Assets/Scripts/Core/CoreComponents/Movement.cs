@@ -9,6 +9,12 @@ public class Movement : CoreComponent   //用于管理移动
 
     Vector2 m_WorkSpace;
 
+
+
+
+
+
+
     protected override void Awake()
     {
         base.Awake();

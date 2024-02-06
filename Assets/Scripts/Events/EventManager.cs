@@ -6,9 +6,6 @@ public class EventManager : MonoBehaviour
     public List<SO_EventData> AllEvents;
 
 
-
-    public int EventCount { get; private set; }
-    public int EnterSecondStageCount { get; private set; }
     public bool IsSecondStage {  get; private set; }
 
 
@@ -18,6 +15,9 @@ public class EventManager : MonoBehaviour
 
     UIManager m_UIManager;
 
+
+    int EventCount;
+    int EnterSecondStageCount;
 
 
 
@@ -56,7 +56,7 @@ public class EventManager : MonoBehaviour
         m_EventPrefab.GetComponent<Event>().SetEventManager(this);       //将当前脚本传给Event脚本
         m_EventPrefab.GetComponent<Event>().StartEvent();       //开始事件
 
-        AllEvents.RemoveAt(index);      //开始事件后从List中移除事件，防止之后重复触发事件
+        //AllEvents.RemoveAt(index);      //开始事件后从List中移除事件，防止之后重复触发事件
     }
 
     public void DeactivateEventObject()
@@ -94,10 +94,12 @@ public class EventManager : MonoBehaviour
     #endregion
 
     #region Setters
+    /*
     public void SetIsSecondStage(bool isTrue)
     {
         IsSecondStage = isTrue;
     }
+    */
 
     public void IncrementEventCount()
     {

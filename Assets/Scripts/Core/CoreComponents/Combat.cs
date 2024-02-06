@@ -8,7 +8,9 @@ public class Combat : CoreComponent, Idamageable, IKnockbackable    //用于管理受
     public bool IsHit {  get; private set; }
 
 
+
     float m_HitResistance;     //击退抗性
+
 
 
 
