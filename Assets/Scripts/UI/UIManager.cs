@@ -1,79 +1,156 @@
-using System.Collections;
-using TMPro;
+using System.Collections.Generic;
 using UnityEngine;
 
 
 
-public class UIManager : MonoBehaviour
+public class UIConst    //用于存储界面的名称
 {
-    public GameObject TransitionStageTextBG;
+    public const string PlayerStatusBar = "PlayerStatusBar";
+    public const string TransitionStagePanel = "TransitionStagePanel";    
+}
 
 
 
 
-    TextMeshProUGUI TransitionStageText;
-    float m_DisplayDuration = 10f;
-    
-
-
-
-
-
-
-
-    private void Awake()
+public class UIManager
+{
+    private static UIManager m_Instance;
+    public static UIManager Instance    //单例模式
     {
-        TransitionStageText = TransitionStageTextBG.GetComponentInChildren<TextMeshProUGUI>();
-    }
-
-    private void Start()
-    {
-        TransitionStageTextBG.SetActive(false);
-    }
-
-
-
-
-
-
-
-    public void DisplayText(GameObject thisTextBG)
-    {
-        thisTextBG.SetActive(true);    //显示文字
-
-
-        if (TransitionStageText != null)
+        get
         {
-            TypeWriterEffect(TransitionStageText, 0.05f);
-        }
-        
-        StartCoroutine(DisableTextAfterDelay(thisTextBG, m_DisplayDuration));  
-    }
-
-
-    private void TypeWriterEffect(TextMeshProUGUI textComponent, float typeSpeed)      //打字机效果
-    {
-        string fullText = textComponent.text;   //先储存文字段，然后清零文字
-        textComponent.text = " ";
-
-        StartCoroutine(TypeText(textComponent, fullText, typeSpeed));
-    }
-
-
-
-    private IEnumerator TypeText(TextMeshProUGUI textComponent, string fullText, float typeSpeed)      //用于打字机（每个字一个一个打出来）
-    {
-        foreach (char letter in fullText.ToCharArray() )
-        {
-            textComponent.text += letter;       //每当一个字打出来后，等待一段时间再打下一个字
-            yield return new WaitForSeconds(typeSpeed);
+            if (m_Instance == null)
+            {
+                m_Instance = new UIManager();
+            }
+            return m_Instance;
         }
     }
 
 
-    private IEnumerator DisableTextAfterDelay(GameObject thisTextBG, float delay)      //用于一段时间后隐藏文字
+    private Transform m_UIRoot;
+    public Transform UIRoot     //所有UI的跟节点（最顶层的父物体）
     {
-        yield return new WaitForSeconds(delay);
-        thisTextBG.SetActive(false);
+        get
+        {
+            if (m_UIRoot == null)
+            {
+                GameObject canvasObject = GameObject.Find("Canvas");
+
+                if (canvasObject != null)
+                {
+                    m_UIRoot = canvasObject.transform;
+                }
+                else
+                {
+                    m_UIRoot = new GameObject("Canvas").transform;
+                }               
+            }
+            return m_UIRoot;
+        }
+    }
+
+
+
+
+    public Dictionary<string, BasePanel> PanelDict;      //存放已打开界面的字典（里面存储的都是正在打开的界面）
+
+    Dictionary<string, string> m_PathDict;       //使用字典存储界面的配置路径表
+    Dictionary<string, GameObject> m_PrefabDict;     //预制件缓存字典
+
+
+
+
+
+
+
+
+    private UIManager()     //构造函数
+    {
+        InitDicts();
+    }
+
+
+
+    private void InitDicts()    //初始化字典
+    {
+        PanelDict = new Dictionary<string, BasePanel>();
+        m_PrefabDict = new Dictionary<string, GameObject>();
+
+        m_PathDict = new Dictionary<string, string>()   //初始化所有界面的路径
+        {
+            { UIConst.TransitionStagePanel, "Others/TransitionStagePanel"},
+            { UIConst.PlayerStatusBar, "Others/PlayerStatusBar"}
+        };
+    }
+
+
+
+
+    //打开界面
+    public BasePanel OpenPanel(string name)
+    {
+        //检查界面是否已经打开
+        BasePanel panel = null;
+
+        if (PanelDict.TryGetValue(name, out panel))     //此函数会尝试从字典中寻找第一个参数的元素并赋值给第二个参数，最后返回true如果在字典中找到了第一个参数对应的元素
+        {
+            Debug.LogError("This panel is already opened: " +  name);
+            return null;
+        }
+
+
+        //检查路径是否有配置
+        string path = "";
+
+        if (!m_PathDict.TryGetValue(name, out path))
+        {
+            Debug.LogError("Something wrong with the name or path of this panel: " + name);
+            return null;
+        }
+
+
+        //使用缓存的预制件
+        GameObject panelPrefab = null;
+
+        if (!m_PrefabDict.TryGetValue(name, out panelPrefab))
+        {
+            string realPath = "Prefab/UI/Panels/" + path;    //如果没有被加载过，则加载出来并放入缓存字典
+
+            panelPrefab = Resources.Load<GameObject>(realPath);     //通过Load函数从Assets中寻找资源赋值（必须在Resources文件夹下面）
+            m_PrefabDict.Add(name, panelPrefab);    //加入存放界面预制件的字典
+        }
+
+
+        //打开界面
+        GameObject panelObject = GameObject.Instantiate(panelPrefab, UIRoot, false);    //生成出来，并使它成为UIRoot的一个子节点
+
+        panel = panelObject.GetComponent<BasePanel>();
+        PanelDict.Add(name, panel);       //加入存放已打开界面的字典
+        return panel;
+    }
+
+    //关闭界面
+    public bool ClosePanel(string name)
+    {
+        BasePanel panel = null;
+
+        if (!PanelDict.TryGetValue (name, out panel))     //检查界面是否已打开，没打开的话则报错
+        {
+            Debug.LogError("This panel is not opened yet: " + name);
+            return false;
+        }
+
+
+        if (panel.CanvasGroup != null)
+        {
+            panel.FadeOut(panel.CanvasGroup, 1f);       //如果可以淡出的话优先淡出
+        }
+        else
+        {
+            panel.ClosePanel();
+        }
+
+        return true;
     }
 }

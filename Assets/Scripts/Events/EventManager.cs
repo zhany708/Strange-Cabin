@@ -9,11 +9,10 @@ public class EventManager : MonoBehaviour
     public bool IsSecondStage {  get; private set; }
 
 
+
     Animator m_Animator;
     GameObject m_EventPrefab;
     Vector2 m_RoomPosition;
-
-    UIManager m_UIManager;
 
 
     int EventCount;
@@ -25,8 +24,6 @@ public class EventManager : MonoBehaviour
     private void Awake()
     {
         m_Animator = GetComponent<Animator>();
-
-        m_UIManager = FindObjectOfType<UIManager>();
     }
 
     private void Start()
@@ -86,20 +83,17 @@ public class EventManager : MonoBehaviour
     #region AnimationEvents
     private void DisplayTransitionStageText()       //用于阶段动画中决定何时显示文字
     {
-        if (m_UIManager != null)
-        {
-            m_UIManager.DisplayText(m_UIManager.TransitionStageTextBG);
-        }
+        UIManager.Instance.OpenPanel(UIConst.TransitionStagePanel);
     }
     #endregion
 
     #region Setters
-    /*
+    
     public void SetIsSecondStage(bool isTrue)
     {
         IsSecondStage = isTrue;
     }
-    */
+    
 
     public void IncrementEventCount()
     {
