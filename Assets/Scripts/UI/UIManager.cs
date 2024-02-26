@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class UIConst    //用于存储界面的名称
 {
-    public const string PlayerStatusBar = "PlayerStatusBar";
-    public const string TransitionStagePanel = "TransitionStagePanel";    
+    public const string PlayerStatusBar = "PlayerStatusBar";    //玩家状态栏。在HealthBar脚本里初始化
+    public const string TransitionStagePanel = "TransitionStagePanel";    //进入二阶段文字
 }
 
 
@@ -15,11 +15,11 @@ public class UIConst    //用于存储界面的名称
 public class UIManager
 {
     private static UIManager m_Instance;
-    public static UIManager Instance    //单例模式
+    public static UIManager Instance    //单例模式（整局游戏只存在一个此类的实例）
     {
         get
         {
-            if (m_Instance == null)
+            if (m_Instance == null)     //第一次检查
             {
                 m_Instance = new UIManager();
             }
@@ -57,6 +57,7 @@ public class UIManager
 
     Dictionary<string, string> m_PathDict;       //使用字典存储界面的配置路径表
     Dictionary<string, GameObject> m_PrefabDict;     //预制件缓存字典
+
 
 
 
@@ -152,5 +153,12 @@ public class UIManager
         }
 
         return true;
+    }
+
+
+
+    public void ChangePanelLayer(BasePanel thisPanel)   //改变UI的渲染层级
+    {
+
     }
 }
